@@ -60,6 +60,13 @@
     - [数据封装](#数据封装)
   - [访问限制](#访问限制)
   - [继承和多态](#继承和多态)
+  - [获取对象信息](#获取对象信息)
+    - [type()](#type)
+    - [isinstance()](#isinstance)
+    - [dir()](#dir)
+  - [实例属性和类属性](#实例属性和类属性)
+- [十、面向对象高级编程](#十-面向对象高级编程)
+  - [\_\_slots\_\_](#__slots__)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -1141,6 +1148,82 @@ class Timer(object):
 传入 twice_run() 的对象不必是 Animal 的子类，只要有 run() 即可
 
 `因此相对静态语言，动态语言（Python）的继承不是那么必要`
+
+## 获取对象信息
+
+### type()
+
+获取对象类型
+
+| 类型     | 类型常量                  | 对象                   |
+| -------- | ------------------------- | ---------------------- |
+| int      | int                       | 123                    |
+| str      | str                       | '123'                  |
+| 函数     | types.FunctionType        | def fn(): pass         |
+| 内建函数 | types.BuiltinFunctionType | abs                    |
+| 匿名函数 | types.LambdaType          | lambda x: x            |
+| 生成器   | types.GeneratorType       | (x for x in range(10)) |
+
+### isinstance()
+
+判断是否指定类型或指定类型元组中的一个
+
+```python
+>>> isinstance(x, t) # x 是对象，t 是类型，t 可以是多个类型组成的一个 tuple 对象
+```
+
+### dir()
+
+获取对象的所有属性和方法
+
+**len()**
+
+实际是调用了对象的 \_\_len\_\_() 方法，因此按照鸭子类型，自己的类只要实现了 \_\_len\_\_()，也可以使用 len(myObj)
+
+**getattr(obj, pname)**
+
+获取对象的指定属性或方法，也可以传第 3 个参数作为默认值
+
+**setattr(obj, pname, pvalue)**
+
+设置对象指定属性的值
+
+**hasattr(obj, pname)**
+
+判断对象是否存在指定名称的属性或方法
+
+可以确定存在而直接访问的属性或方法，就不要使用`getattr`，因此可以通过`hasattr`判断属性或方法是否存在
+
+## 实例属性和类属性
+
+通过实例变量或`self`变量绑定`实例属性`
+
+通过类本身绑定的是`类属性`，类属性归类所有，但类的所有实例都可以访问到
+
+```python
+>>> class Student(object):
+...     name = 'Student'
+...
+>>> s = Student()
+>>> print(s.name)
+Student
+>>> print(Student.name)
+Student
+>>> s.name = 'Aurelius'
+>>> print(s.name)
+Aurelius
+>>> print(Student.name)
+Student
+>>> del s.name
+>>> print(s.name)
+Student
+```
+
+相同名称的实例属性将屏蔽类属性（当查找到对应名称的实例属性时，即使存在同名类属性，也不会被查找到），当删除实例属性后，可以再次访问到类属性
+
+# 十、面向对象高级编程
+
+## \_\_slots\_\_
 
 # todo:
 
