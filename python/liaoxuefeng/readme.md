@@ -67,6 +67,19 @@
   - [实例属性和类属性](#实例属性和类属性)
 - [十、面向对象高级编程](#十-面向对象高级编程)
   - [\_\_slots\_\_](#__slots__)
+  - [@property](#property)
+  - [多重继承](#多重继承)
+  - [定制类](#定制类)
+    - [\_\_str\_\_](#__str__)
+    - [\_\_repr\_\_](#__repr__)
+    - [\_\_iter\_\_](#__iter__)
+    - [\_\_getitem\_\_](#__getitem__)
+    - [\_\_getattr\_\_](#__getattr__)
+    - [\_\_call\_\_](#__call__)
+  - [枚举类](#枚举类)
+  - [元类](#元类)
+    - [type](#type-1)
+    - [metaclass](#metaclass)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -620,7 +633,7 @@ def triangles():
 **判断是否迭代器**
 
 ```python
->>> from  collections.abc import Iterator
+>>> from collections.abc import Iterator
 >>> isinstance((x for x in range(10))， Iterator)
 True
 ```
@@ -1225,7 +1238,278 @@ Student
 
 ## \_\_slots\_\_
 
+**动态绑定方法**
+
+给`Instance`绑定方法，只对当前`Instance`有效
+
+```python
+class Student(object):
+    pass
+
+s = Student()
+
+def set_age(self, age):
+    self.age = age
+
+from types import MethodType
+s.set_age = MethodType(set_age, s)
+s.set_age(25)
+```
+
+给`Class`绑定方法，对所有`Instance`有效
+
+```python
+def set_score(self, score):
+    self.score = score
+
+Student.set_score = set_score
+s.set_score(100)
+```
+
+**使用 \_\_slots\_\_**
+
+用来限制 `class` 实例可以添加的属性，包括`Class`定义中绑定的属性
+
+```python
+class Student(object):
+    # tuple定义允许绑定的属性名称
+    __slots__ = ('name', 'age')
+```
+
+`__slots__`只对当前类有效，对子类无效；若子类也定义了`__slots__`，有效范围时自身加父类的范围
+
+## @property
+
+把一个`getter`方法变成属性，同时创建另一个装饰器`@pname.setter`，负责把另一个`setter`方法变成属性赋值
+
+```python
+class Student(object):
+    @property
+    def birth(self):
+        return self._birth
+
+    @birth.setter
+    def birth(self, value):
+        self._birth = value
+
+    # 只读属性
+    @property
+    def age(self):
+        return 2020 - self._birth
+```
+
+## 多重继承
+
+Python 允许使用多重继承，一个子类可以同时继承多个父类的所有功能
+
+**MixIn**
+
+除了继承自主线，还额外混入其他类的功能，这种设计叫`MixIn`
+
+## 定制类
+
+通过一些`__xxx__`属性定制类
+
+### \_\_str\_\_
+
+返回给用户看到的字符串，实例的打印结果
+
+### \_\_repr\_\_
+
+返回实例调式值显示结果
+
+### \_\_iter\_\_
+
+将`Class`实例变成一个迭代器，需要实现`__next__()`方法，for 循环会不断调用迭代对象的`__next__()`
+
+```python
+class Fib(object):
+    def __init__(self):
+        self.a, self.b = 0, 1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self.a, self.b = self.b, self.a + self.b
+        if self.a > 1000:
+            raise StopIteration()
+        return self.a
+```
+
+### \_\_getitem\_\_
+
+通过索引器或者切片读取实例的值时被调用
+
+```python
+class Fib(object):
+    def __getitem__(self, n):
+        if isinstance(n, int):
+            a, b = 1, 1
+            for x in range(n):
+                a, b = b, a + b
+            return a
+        if isinstance(n, slice):
+            start, stop = n.start, n.stop
+            if start is None:
+                start = 0
+            a, b = 1, 1
+            res = []
+            for x in range(stop):
+                if x >= start:
+                    res.append(a)
+                a, b = b, a + b
+            return res
+```
+
+`slice`的`step`参数和负数值可以进一步处理
+
+### \_\_getattr\_\_
+
+当调用实例不存在的属性时被调用，已有的属性不会在`__getattr__`中查找
+
+`__getattr__`可以实现完全动态的调用
+
+```python
+class Chain(object):
+    def __init__(self, path=''):
+        self._path = path
+
+    def __getattr__(self, path):
+        return Chain(f'{self._path}/{path}')
+
+    def __call__(self, param):
+        return Chain(f'{self._path}/{param}')
+
+    def __str__(self):
+        return self._path
+
+    __repr__ = __str__
+
+
+print(Chain().status.user('Aurelius').timeline.list)
+```
+
+### \_\_call\_\_
+
+定义了`__call__`，就可以调用实例本身，`__call__`可以有参数
+
+```python
+class Student(object):
+    def __init__(self, name):
+        return self._name
+
+    def __call__(self, text):
+        print(f'{self._name}: {text}')
+
+print(Student('Aurelius')('A'))
+```
+
+**类本身的调用会执行`type`的`__call__`方法**
+
+## 枚举类
+
+将一组相关常量定义在一个`Class`中，并且不可变，成员可以直接比较
+
+**通过`Enum`调用**
+
+```python
+>>> from enum import Enum
+>>> Month = Enum('Month', ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
+>>> for name, member in Month.__members__.items():
+...    print(name, '=>', member, ',', member.value)
+...
+Jan => Month.Jan , 1
+Feb => Month.Feb , 2
+Mar => Month.Mar , 3
+Apr => Month.Apr , 4
+May => Month.May , 5
+Jun => Month.Jun , 6
+Jul => Month.Jul , 7
+Aug => Month.Aug , 8
+Sep => Month.Sep , 9
+Oct => Month.Oct , 10
+Nov => Month.Nov , 11
+Dec => Month.Dec , 12
+```
+
+**通过继承`Enum`**
+
+```python
+from enum import Enum, unique
+
+@unique
+class Weekday(Enum):
+    Sum = 0 # 默认从 1 开始，这里设置 0
+    Mon = 1
+    Tue = 2
+    Wed = 3
+    Thu = 4
+    Fri = 5
+    Sat = 6
+```
+
+**获取方式**
+
+- `Enum['Name']`
+- `Enum.Name`
+- `Enum(value)`
+
+## 元类
+
+### type
+
+`type`函数既可以返回一个对象的类型，又可以创建出新的类型
+
+**`type`创建`class`**
+
+```python
+def fn(self, name='world'):
+    print(f'Hello, {name}')
+
+Hello = type('Hello', (object,), dict(hello=fn))
+h = Hello()
+h.hello()
+```
+
+`type()` 的 3 个参数：
+
+- class 的名称
+- 继承的父类元组
+- class 的方法和其绑定函数的字典
+
+### metaclass
+
+`metaclass`允许创建类或修改类，可以把类看作`metaclass`创建的实例
+
+**定义`metaclass`**
+
+```python
+class ListMetaclass(type):
+    def __new__(cls, name, bases, attrs):
+        attrs['add'] = lambda self, value: self.append(value)
+        return type.__new__(cls, name, bases, attrs)
+```
+
+`__new__()`的 4 个参数依次是：
+
+- 当前准备创建的类对象
+- 类的名称
+- 类继承的父类元组
+- 类的方法字典
+
+**定制类**
+
+```python
+# 在 Python 解释器创建 MyList 时，要通过 ListMetaclass.__new__() 来创建
+class MyList(list, metaclass=ListMetaclass):
+    pass
+```
+
+Python 解释器首先在当前类的定义中查找`metaclass`，如果没有，就继续在父类查找，知道找到，用来创建当前类，`metaclass`隐式继承到子类
+
 # todo:
 
 1. JIT 技术
 2. dict 的实现原理
+3. @property 的实现
