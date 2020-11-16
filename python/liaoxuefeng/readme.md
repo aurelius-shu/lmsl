@@ -80,6 +80,19 @@
   - [元类](#元类)
     - [type](#type-1)
     - [metaclass](#metaclass)
+- [十一、错误、调试和测试](#十一-错误-调试和测试)
+  - [错误处理](#错误处理)
+  - [debug](#debug)
+    - [assert](#assert)
+    - [logging](#logging)
+    - [pdb](#pdb)
+    - [IDE](#ide)
+  - [unittest](#unittest)
+    - [编写](#编写)
+    - [运行](#运行)
+    - [`setUp`与`tearDown`](#setup与teardown)
+  - [doctest](#doctest)
+- [IO 编程](#io-编程)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -1507,6 +1520,239 @@ class MyList(list, metaclass=ListMetaclass):
 ```
 
 Python 解释器首先在当前类的定义中查找`metaclass`，如果没有，就继续在父类查找，知道找到，用来创建当前类，`metaclass`隐式继承到子类
+
+# 十一、错误、调试和测试
+
+## 错误处理
+
+```python
+try:
+    # 可能有异常的代码块
+    r = 10/int('2')
+except ValueError as e:
+    # 有异常时执行，捕获指定类型及其子类型的错误
+    print('ValueError', e)
+except ZeroDivisionError as e:
+    # 当前面的异常命中后，后面不会再次捕获
+    print('ZeroDivisionError', e)
+else:
+    # 无异常时执行
+    print('no error.')
+finally：
+    # 上面结束后一定会执行
+    print('finally')
+```
+
+**调用栈**
+
+从上到下时整个错误的调用函数链，依次从外到内
+
+**记录错误**
+
+```python
+try:
+    r = 10/int('0')
+except Exception as e:
+    # 记录错误堆栈
+    logging.exception(e)
+```
+
+**抛出异常**
+
+```python
+# 自定义异常
+class FooError(ValueError):
+    pass
+
+# 抛出异常
+raise FooError('invalid value')
+
+# 捕获异常，原样抛出
+except ValueError as e:
+    raise
+
+# 转化成另一种异常抛出
+except ZeroDivisionError:
+    raise ValueError('input error.')
+```
+
+程序主动抛出异常时，应该在文档写清楚可能抛出的异常及其原因，方便调用者处理相应的错误
+
+## debug
+
+### assert
+
+如果断言的语句不成立，assert 语句会抛出 AssertionError
+
+```python
+assert n!=0, 'n is zero.'
+```
+
+可以通过 `-O` 参数关闭断言，关闭后，`assert` 语句相当于 `pass`
+
+### logging
+
+```python
+import logging
+logging.basicConfig(level=logging.INFO)
+
+logging.info('xxx')
+```
+
+logging level
+
+- CRITICAL
+- ERROR
+- WARNING - 根记录器级别默认级别
+- INFO
+- DEBUG
+- NOTSET - 默认级别，处理所有消息
+
+logging 的另一个好处时通过配置，一条消息可以同时输出到不同的地方，比如`console`、文件、`database`
+
+**多使用`logging`**
+
+### pdb
+
+以参数`-m pdb`启动`.py`，单步运行
+
+```cmd
+python -m pdb xxx.py
+```
+
+`pdb`界面指令
+
+| 指令 | 作用                |
+| ---- | ------------------- |
+| l    | 查看代码            |
+| n    | 单步执行            |
+| p    | `p 变量名` 查看变量 |
+| q    | 结束调试，退出程序  |
+| c    | 继续运行            |
+
+**set_trace()**
+
+设置断点，进入调试后，通过`c`命令运行自动暂停在该断点处
+
+### IDE
+
+[Visual Studio Code](https://code.visualstudio.com/)
+
+[PyCharm](http://www.jetbrains.com/pycharm/)
+
+## unittest
+
+**TDD**
+
+测试驱动开发（Test Driven Development）
+
+单元测试是未来重构代码的保障
+
+单元测试要覆盖常用输入组合，边界条件，异常
+
+单元测试不能太复杂，否则自身也可能有 bug
+
+### 编写
+
+```python
+import unittest
+class TestDict(unittest.TestCase):
+    def test_init(self):
+        d = dict(a=1, b='test')
+        # 断言相等
+        self.assertEqual(d.a, 1)
+        self.assertEqual(d.b, 'test')
+        # 断言为真
+        self.assertTrue(isinstance(d, dict))
+
+    def test_keyerror(self):
+        d = dict()
+        # 期待语句块中抛出指定类型的 Error
+        with self.assertRaises(KeyError):
+            value = d['empty']
+```
+
+`单元测试类`继承自`unittest.TestCase`
+`单元测试方法`必须以`test`开头命名，否则不会被执行
+
+### 运行
+
+**通过代码运行**
+
+```python
+if __name__ == '__main__':
+    unittest.main()
+```
+
+**通过命令参数运行**
+
+```powershell
+python -m unittest mytest
+```
+
+### `setUp`与`tearDown`
+
+在每调用一个单元测试的前后被执行
+
+## doctest
+
+文档测试，既可以用来运行测试，也是实例代码
+
+严格按照 Python 交互命令行的输入和输出来判断测试结果的正确性
+
+在测试异常时，可用`...`表示中间省略的输出
+
+```python
+class Dict(dict):
+    """
+    Simple dict but also support access as x.y style.
+
+    >>> d1 = Dict()
+    >>> d1['x'] = 100
+    >>> d1.x
+    100
+    >>> d1.y = 200
+    >>> d1['y']
+    200
+    >>> d2 = Dict(a=1, b=2, c='3')
+    >>> d2.c
+    '3'
+    >>> d2['empty']
+    Traceback (most recent call last):
+        ...
+    KeyError: 'empty'
+    >>> d2.empty
+    Traceback (most recent call last):
+        ...
+    AttributeError: 'Dict' object has no attribute 'empty'
+    """
+    def __init__(self, **kw):
+        super(Dict, self).__init__(**kw)
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(f"'Dict' object has no attribute '{key}'")
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
+```
+
+**运行**
+
+```powershell
+python mydict.py
+```
+
+没有输出既是运行正确
+
+# 十二、IO 编程
 
 # todo:
 
