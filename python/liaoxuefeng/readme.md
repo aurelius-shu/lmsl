@@ -90,9 +90,24 @@
   - [unittest](#unittest)
     - [编写](#编写)
     - [运行](#运行)
-    - [`setUp`与`tearDown`](#setup与teardown)
+    - [setUp 与 tearDown](#setup-与-teardown)
   - [doctest](#doctest)
-- [IO 编程](#io-编程)
+- [十二、IO 编程](#十二-io-编程)
+  - [文件读写](#文件读写)
+    - [读文件](#读文件)
+    - [写文件](#写文件)
+  - [StringIO 和 BytesIO](#stringio-和-bytesio)
+    - [StringIO](#stringio)
+    - [BytesIO](#bytesio)
+  - [操作文件和目录](#操作文件和目录)
+    - [环境变量](#环境变量)
+    - [操作文件和目录](#操作文件和目录-1)
+  - [序列化](#序列化)
+    - [Pickle](#pickle)
+    - [JSON](#json)
+    - [JSON 进阶](#json-进阶)
+- [进程与线程](#进程与线程)
+  - [多进程](#多进程)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -1690,7 +1705,7 @@ if __name__ == '__main__':
 python -m unittest mytest
 ```
 
-### `setUp`与`tearDown`
+### setUp 与 tearDown
 
 在每调用一个单元测试的前后被执行
 
@@ -1754,8 +1769,221 @@ python mydict.py
 
 # 十二、IO 编程
 
+`IO`指`Input`/`Output`
+
+`Input Stream` 从外面（磁盘、网络）流进内存
+
+`Output Stream` 从内存流到外面
+
+`同步 IO` CPU 等待`IO`完成，程序暂停后续执行
+
+`异步 IO` CPU 不等待`IO`完成，先做其他事，通过**回调**或**轮询**处理`IO`后续
+
+## 文件读写
+
+在磁盘上读写文件的功能都是有操作系统提供的，现代操作系统不允许普通程序直接操作磁盘
+
+**文件流操作方法**
+
+| 方法        | 说明                                                                                                      |
+| ----------- | --------------------------------------------------------------------------------------------------------- |
+| open()      | 以指定模式打开文件对象，参数为`文件名`和`模式标示符`，可选参数`encoding`(编码) `errors`(编码错误处理方式) |
+| read()      | 一次读取文件所有内容，返回`str`对象                                                                       |
+| read(size)  | 每次读取`size`个字节的内容                                                                                |
+| readline()  | 每次读取一行内容                                                                                          |
+| readlines() | 一次读取所有内容，并返回以行分割的`list`                                                                  |
+| write()     | 将要写入的内容写入内存缓存，当`close` 被调用时真正将内容写出                                              |
+| close()     | 关闭文件，关闭前将内存缓存中的内容全部写出                                                                |
+
+**文件对象模式**
+
+| 字符 | 含义                                   |
+| ---- | -------------------------------------- |
+| `r`  | 读取（默认）                           |
+| `w`  | 写入，先 truncate 文件                 |
+| `x`  | 独占创建，如果文件已经存在则失败       |
+| `a`  | 写入，如果文件已经存在则追加到文件末尾 |
+| `b`  | 二进制模型                             |
+| `t`  | 文字模式（默认）                       |
+| `+`  | 更新（读写）                           |
+
+### 读文件
+
+```python
+with open('/Users/aurelius/test.txt', 'r') as f:
+    print(f.read())
+```
+
+`with`语句可保证`open`的文件最终会被`close`，同样的功能可以通过`try ... finally`语句在`finally`中执行`close`实现
+
+### 写文件
+
+```python
+with open('/User/aurelius/test.txt', 'w') as f:
+    f.write('hello, world.')
+```
+
+## StringIO 和 BytesIO
+
+### StringIO
+
+在内存中读写`str`，和读写文件具有一致的接口
+
+```python
+from io import StringIO
+# InputStream
+f = StringIO()
+f.write('hello')
+# 读取写入的 str
+f.getvalue()
+
+# OutputStream
+f = StringIO('hello, 中国')
+f.read()
+```
+
+### BytesIO
+
+在内存中读写`bytes`
+
+```python
+from io import BytesIO
+# InputStream
+f = BytesIO()
+f.write('中文'.encode('utf-8'))
+print(f.getvalue())
+
+# OutputStream
+f = BytesIO(b'\xe4\xb8\xad\xe6\x96\x87')
+print(f.read().decode('utf-8'))
+```
+
+## 操作文件和目录
+
+Python 内置的`os`模块可以直接调用系统提供的接口函数操作文件和目录
+
+```python
+>>> import os
+>>> os.name
+nt
+```
+
+### 环境变量
+
+```python
+os.environ # 全部环境变量 (Class<Environ>)
+os.environ.get('key', 'default') # 指定的环境变量，default 可选
+```
+
+### 操作文件和目录
+
+| 函数                                  | 作用                                                                         |
+| ------------------------------------- | ---------------------------------------------------------------------------- |
+| os.path.abspath('.')                  | 当前路径的绝对路径                                                           |
+| os.path.join(r'd:\a', 'b')            | 把路径 2（`b`）拼接到路径 1（`d:\a`）上，路径 2 若为绝对路径，直接返回路径 2 |
+| os.mkdir(r'd:\test')                  | 创建一个目录                                                                 |
+| os.mkdir(r'd:\test')                  | 删除一个目录                                                                 |
+| os.path.split(r'd:\test\file.txt')    | 拆分成最后级别目录和文件名                                                   |
+| os.path.splitext(r'd:\test\file.txt') | 拆分下文件扩展名                                                             |
+| os.rename('test.txt', 'text.py')      | 重命名文件                                                                   |
+| os.remove('test.py')                  | 删除文件                                                                     |
+| os.listdir('.')                       | 列举指定路径                                                                 |
+| os.path.isdir('d:\test')              | 判断是否路径                                                                 |
+| os.path.isfile('d:\test\test.txt')    | 判断是否文件                                                                 |
+
+`shutil`模块对`os`功能做了补充，其`copyfile()`提供文件复制功能
+
+## 序列化
+
+把变量从内存中变成可存储或传输的过程称为序列化`pickling`，把序列化对象重新读到内存里称为反序列化`unpickling`
+
+### Pickle
+
+**dumps/dump**
+
+```python
+>>> import pickle
+>>> d = dict(name='中国人', age=18, score=99)
+# pickle.dumps 把任意对象序列化成 bytes
+>>> pickle.dumps(d)
+b'\x80\x04\x95*\x00\x00\x00\x00\x00\x00\x00}\x94(\x8c\x04name\x94\x8c\t\xe4\xb8\xad\xe5\x9b\xbd\xe4\xba\xba\x94\x8c\x03age\x94K\x12\x8c\x05score\x94Kcu.'
+# pickle.dump 直接把对象序列化后写入 file-like Ojbect
+>>> with open('dump.txt', 'wb') as w:
+...     pickle.dump(d, w)
+```
+
+**loads/load**
+
+```python
+>>> with open('dump.txt', 'rb') as r:
+...     d = pickle.load(r)
+...
+>>> d
+{'name': 'Aurelius', 'age': 18, 'score': 99}
+```
+
+`pickle`反序列化得到的变量与原来的变量完全无关，只是值相同而已
+
+`pickle`序列化只适用于 Python，且不同版本彼此不兼容
+
+### JSON
+
+序列化的一种标准格式，适用于不同编程语言之间传递，标准编码使用 UTF-8
+
+**JSON 类型关系**
+
+| JSON 类型  | Python 类型 |
+| ---------- | ----------- |
+| {}         | dict        |
+| []         | list        |
+| string     | str         |
+| int/float  | int/float   |
+| true/false | True/False  |
+| null       | None        |
+
+```python
+>>> import json
+>>> d = dict(name='Aurelius', age=18, score=99)
+>>> json_str = json.dumps(d)
+>>> json_str
+'{"name": "Aurelius", "age": 18, "score": 99}'
+>>> json.loads(json_str)
+{'name': 'Aurelius', 'age': 18, 'score': 99}
+```
+
+`dumps`/`dump`的`ensure_ascii`参数可以决定是否统一将返回的`str`对象编码为`ascii`字符
+
+### JSON 进阶
+
+自定义类的对象不能直接序列化，需要实现`dumps`/`dump`的`default`参数对应的方法，将该对象转化成`dict`对象
+
+```python
+json.dumps(o, default=object2dict)
+```
+
+通常`class`都有`__dict__`属性，存储着实例的变量（定义了`__solts__`除外），因此可以直接如此调用
+
+```python
+json.dumps(o, default=lambda o: o.__dict__)
+```
+
+`loads`/`load`在反序列化自定义类型时也需传入`object_hook`相应方法，将`dict`对象转化为自定义类型的对象
+
+```python
+json.loads(json_str, object_hook=dict2object)
+```
+
+# 进程与线程
+
+`线程`是最小的执行单元
+
+`进程`是最小的资源分配单元，至少由一个线程组成
+
+## 多进程
+
 # todo:
 
 1. JIT 技术
 2. dict 的实现原理
 3. @property 的实现
+4. open() 模式的`+`

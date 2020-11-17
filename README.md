@@ -16,6 +16,10 @@
 
     是否值得推荐
 
+    独立思考，脑力
+    忍耐克制，自律
+    读书学习，寂寞
+
 # structure
 
 - Computer Basic
