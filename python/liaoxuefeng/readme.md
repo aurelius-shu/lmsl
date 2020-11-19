@@ -124,6 +124,13 @@
 - [十四、正则表达式](#十四-正则表达式)
   - [进阶](#进阶)
   - [re 模块](#re-模块)
+    - [match](#match)
+    - [split](#split)
+    - [group](#group)
+    - [贪婪匹配](#贪婪匹配)
+    - [编译](#编译)
+- [常用内建模块](#常用内建模块)
+  - [datetime](#datetime)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -2444,6 +2451,113 @@ if __name__ == "__main__":
 | \$     | 行的结束    | '\d\$' 表示以数字结束                          |
 
 ## re 模块
+
+Python 字符串本身用`\`转义，正则表达式也用`\`转义，在拼写正则表达式时使用`r`前缀可以忽略掉 Python 本身字符串的转义
+
+### match
+
+```python
+>>> import re
+>>> re.match(r'^\d{3}\-\d{3,8}$', '010-12345')
+<re.Match object; span=(0, 9), match='010-12345'>
+>>> re.match(r'^\d{3}\-\d{3,8}$', '010 12345')
+>>>
+```
+
+当匹配成功时，返回一个 Match 对象，否则返回 None
+
+### split
+
+```python
+>>> re.split(r'\s+', 'a b   c')
+['a', 'b', 'c']
+>>> re.split(r'[\s\,\;]+', 'a,b;; c  d')
+['a', 'b', 'c', 'd']
+```
+
+通过模式分割字符串，返回分割的数组
+
+### group
+
+```python
+>>> m = re.match(r'^(\d{3})-(\d{3,8})$', '010-12345')
+>>> m
+<re.Match object; span=(0, 9), match='010-12345'>
+>>> m.group(2)
+'12345'
+>>> m.group(1)
+'010'
+>>> m.group(0)
+'010-12345'
+```
+
+通过`()`提取分组子串，`group(0)`表示匹配的全部字符串，`group(n)`表示第 n 个子串
+
+### 贪婪匹配
+
+匹配尽可能多的字符
+
+```python
+>>> re.match(r'^(\d+)(0*)$', '102300').groups()
+('102300', '')
+>>> re.match(r'^(\d+)(0+)$', '102300').groups()
+('10230', '0')
+```
+
+正则匹配默认是贪婪匹配，想要非贪婪匹配（尽可能少匹配），在`\d+`后加`?`
+
+```python
+>>> re.match(r'^(\d+?)(0*)$', '102300').groups()
+('1023', '00')
+```
+
+### 编译
+
+`re`模块执行步骤：
+
+1. 编译正则表达式，不合法则报错
+2. 用编译后的正则表达式匹配字符串
+
+**预编译**
+
+```python
+>>> import re
+>>> re_telephone = re.compile(r'^(\d{3})-(\d{3,8})$')
+>>> re_telephone.match('010-12345').groups()
+('010', '12345')
+>>> re_telephone.match('010-8086').groups()
+('010', '8086')
+```
+
+> 匹配简单邮箱
+
+```python
+def is_valid_email(addr):
+    if re.match(r'(^[a-zA-Z\.]+)\@(gmail|microsoft)\.com$', addr):
+        return True
+    else:
+        return False
+```
+
+> 匹配带名称邮箱，提取名称
+
+```python
+def name_of_email(addr):
+    # 提取邮箱前缀
+    m = re.match(r'^([a-zA-Z\d\s\<\>]+)\@(voyager|example)\.(org|com)$', addr)
+    if not m:
+        return None
+    # 提取前缀中 <> 里面的名称，若不存在，则取全名
+    m = re.match(r'^\<([a-zA-Z\s]+)\>[\s]+[a-zA-Z\d]+|([a-zA-Z\d]+)$', m.group(1))
+
+    return m.group(1) if m and m.group(1) else m.group(2)
+```
+
+# 常用内建模块
+
+无需安装和配置即可使用
+
+## datetime
 
 # todo:
 
