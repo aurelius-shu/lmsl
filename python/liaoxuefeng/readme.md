@@ -139,6 +139,30 @@
     - [ChainMap](#chainmap)
     - [Counter](#counter)
   - [base64](#base64)
+  - [struct](#struct)
+  - [hashlib](#hashlib)
+    - [摘要算法](#摘要算法)
+    - [摘要的应用](#摘要的应用)
+  - [hmac](#hmac)
+  - [itertools](#itertools)
+  - [contextlib](#contextlib)
+    - [\_\_enter\_\_ 和 \_\_exit\_\_](#__enter__-和-__exit__)
+    - [@contextmanager](#contextmanager)
+    - [closing](#closing)
+  - [urllib](#urllib)
+    - [GET](#get)
+    - [POST](#post)
+    - [Handler](#handler)
+  - [XML](#xml)
+    - [DOM](#dom)
+    - [SAX](#sax)
+  - [HTMLParser](#htmlparser)
+- [十六、常用第三方模块](#十六-常用第三方模块)
+  - [Pillow](#pillow)
+  - [requests](#requests)
+  - [chardet](#chardet)
+  - [psutil](#psutil)
+- [十七、virtualenv](#十七-virtualenv)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -2781,7 +2805,681 @@ c.update('hello')
 
 ## base64
 
+`Base64`是一种任意二进制到文本字符串的编码方法，常用于小段`URL`，`Cookie`，数字签名等
 
+对二进制数据，每 3 字节一组，按没 6 bit 分为 4 组，从 64 个预设好的字符找到对应编码，不足 3 字节的末尾加一个或两个`\x00`，再在编码后的末尾加上 1 或 2 个`=`标记，解码时自动去掉
+
+```python
+>>> import base64
+>>> base64.b64encode(b'binary\x00string')
+b'YmluYXJ5AHN0cmluZw=='
+>>> base64.b64decode(b'YmluYXJ5AHN0cmluZw==')
+b'binary\x00string'
+# 对比 urlsafe，将 + 和 / 分别变成 - 和 _
+>>> base64.b64encode(b'i\xb7\x1d\xfb\xef\xff')
+b'abcd++//'
+>>> base64.urlsafe_b64encode(b'i\xb7\x1d\xfb\xef\xff')
+b'abcd--__'
+>>> base64.urlsafe_b64decode(b'abcd--__')
+b'i\xb7\x1d\xfb\xef\xff'
+```
+
+`url`中`=`也需要去掉
+
+## struct
+
+用来处理`bytes`与其他二进制数据的转换
+
+```python
+>>> n = 10240099
+>>> b1 = (n & 0xff000000) >> 24
+>>> b2 = (n & 0xff0000) >> 16
+>>> b3 = (n & 0xff00) >> 8
+>>> b1 = (n & 0xff)
+>>> bs = bytes([b1, b2, b3, b4])
+>>> bs
+b'\x00\x9c@c'
+```
+
+```python
+>>> import struct
+>>> struct.pack('>I', 10240099)
+b'\x00\x9c@c'
+```
+
+```python
+>>> struct.unpack('>I', b'\x00\x9c@c')
+10240099
+```
+
+`>` 表示字节顺序是 big-endian，即网络序，`I`表示 4 字节无符号整数
+
+[`struct`模块定义的数据类型](https://docs.python.org/3/library/struct.html#format-characters)
+
+## hashlib
+
+### 摘要算法
+
+又叫哈希算法，散列算法，通过一个函数，把任意长度的数据转换成一个长度固定的数据串（通常是 16 进制字符串）
+
+```python
+>>> import hashlib
+>>> md5 = hashlib.md5()
+# 可分多次调用 update
+>>> md5.update('how to use md5 in '.encode('utf-8'))
+>>> md5.update('python hashlib?'.encode('utf-8'))
+# 提取 16 进制摘要
+>>> print(md5.hexdigest())
+d26a53750bc40b38b65a520292f69306
+```
+
+`sha1`、`sha256`、`sha512`的调用方式与`md5`完全一致，它们更加安全，但更慢，所得摘要更长
+
+**碰撞**
+
+两个不同的数据通过某个摘要算法得到了相同的摘要，叫做碰撞，这是有可能的（因为任何摘要算法都是把无限的数据集合映射到有限的集合中）
+
+### 摘要的应用
+
+用于生成密文的口令存储于数据库
+
+经过混入`salt`和唯一且不可修改的`ID`，再求哈希值，这样存储会更安全
+
+摘要算法不是用来加密的，因为无法反推明文，只是用于防篡改的
+
+## hmac
+
+Keyed-Hashing for Message Authentication
+
+通过标准的算法，把`key`混入计算过程
+
+```python
+>>> import hmac
+>>> message = b'hello world'
+>>> key = b'secret'
+>>> h = hmac.new(key, message, digestmod='MD5')
+# 如果 message 很长，可以分多次调用 h.update(msg)
+>>> h.hexdigest()
+'78d6997b1230f38e59b6d1642dfaa3a4'
+```
+
+## itertools
+
+用于操作迭代对象的函数
+
+**count(n)**
+
+创建一个无限迭代器，起始于`n`，每次加 1
+
+```python
+import itertools
+# 自然数
+natuals = itertools.count(1)
+```
+
+**cycle(list)**
+
+创建一个无限迭代器，无限重复传入的序列
+
+```python
+# 无限重复'A','B','C'
+cs = itertools.cycle('ABC')
+```
+
+**repeat(item)**
+
+创建一个无限迭代器，无限重复传入的一个元素，第二个参数可以限定重复的次数
+
+```python
+ns = itertools.repeat(123, 3)
+```
+
+**takewhile()**
+
+传入一个筛选函数，用来截取子序列
+
+与`filter`不同，当函数条件第一次不满足后，不再继续迭代
+
+调用所得是一个`itertools.takewhile`迭代对象
+
+```python
+>>> ns = itertools.takewhile(lambda x: x<=10, natuals)
+>>> list(ns)
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+```
+
+**chain()**
+
+将一组迭代对象串联起来
+
+```python
+cn = itertools.chain('ABC', 'XYZ')
+```
+
+**groupby()**
+
+把相邻的重复元素调出分到一组，`group`是`itertools._grouper`迭代对象
+
+```python
+>>> for key, group in itertools.groupby('aaabbbccaaa', lambda c: c.upper()):
+...     print(key, list(group))
+...
+A ['a', 'a', 'a']
+B ['b', 'b', 'b']
+C ['c', 'c']
+A ['a', 'a', 'a']
+```
+
+可以传入一个函数座位第二参数，元素通过函数处理后再作用于`groupby`
+
+**圆周率**
+
+```python
+def pi(N):
+    ' 计算pi的值 '
+    # step 1: 创建一个奇数序列: 1, 3, 5, 7, 9, ...
+    natuals = itertools.count(1)
+    odd = filter(lambda x: x % 2 > 0, natuals)
+    # step 2: 取该序列的前N项: 1, 3, 5, 7, 9, ..., 2*N-1.
+    odd = itertools.takewhile(lambda x: (x + 1) // 2 <= N, odd)
+    # step 3: 添加正负符号并用4除: 4/1, -4/3, 4/5, -4/7, 4/9, ...
+    items = map(lambda x: (4 / (x if (((x + 1) // 2) % 2 > 0) else (0 - x))),
+                odd)
+    # step 4: 求和:
+    return sum(items)
+```
+
+## contextlib
+
+只要实现了上下文管理，任何对象都可以使用`with`语句
+
+### \_\_enter\_\_ 和 \_\_exit\_\_
+
+```python
+class Query(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __enter__(self):
+        print('begin')
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type:
+            print('Error')
+        else:
+            print('End')
+
+    def query(self):
+        print('query info about %s...' % self.name)
+
+
+with Query('bob') as q:
+    q.query()
+```
+
+使用`with`语句时，自动调用 \_\_enter\_\_ 和 \_\_exit\_\_
+
+### @contextmanager
+
+```python
+class Query2(object):
+    def __init__(self, name):
+        self.name = name
+
+    def query(self):
+        print('query info about %s...' % self.name)
+
+
+@contextmanager
+def create_query(name):
+    print('begin')
+    q = Query2(name)
+    yield q
+    print('end')
+
+
+with create_query('bob') as q:
+    q.query()
+```
+
+`with`语句会先执行`yield`之前的语句，`yield`调用会执行`with`语句内部的语句，最后执行`yield`之后的语句
+
+### closing
+
+`closing`是一个经过`@contextmanager`装饰的`generator`
+
+```python
+@contextmanager
+def closing(thing):
+    try:
+        yield thing
+    finally:
+        thing.close()
+```
+
+针对 Python 中读写资源使用完一定要正确关闭的问题，更简单的方式是使用 `closing`
+
+```python
+from contextlib import closing
+from urllib.request import urlopen
+# closing 将 没有实现上下文管理的对象变为上下文对象
+with closing(urlopen('https://www.python.org')) as page:
+    for line in page:
+        print(line)
+```
+
+## urllib
+
+用于操作`URL`
+
+### GET
+
+```python
+from urllib import request
+
+req = request.Request('http://dict.youdao.com/w/odd/#keyfrom=dict2.top')
+# 模拟 iphone OS 8.0 发起请求
+req.add_header(
+    'User-Agent',
+    'Mozilla/6.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/8.0 Mobile/10A5376e Safari/8536.25'
+)
+with request.urlopen(req) as f:
+    data = f.read()
+    print('status:', f.status, f.reason)
+    for k, v in f.getheaders():
+        print(f'{k}: {v}')
+    print('data:'.data.decode('utf-8'))
+```
+
+### POST
+
+```python
+email = 'aaa.foxmail.com'
+pwd = '123456'
+login_data = parse.urlencode([
+    ('username', email), ('password', pwd), ('entry', 'mweibo'),
+    ('client_id', ''), ('savestate', '1'), ('ec', ''),
+    ('pagerefer',
+     'https://passport.weibo.cn/signin/welcome?entry=mweibo&r=http%3A%2F%2Fm.weibo.cn%2F'
+     )
+])
+
+req = request.Request('https://passport.weibo.cn/sso/login')
+# Origin 说明请求从哪里发起的，包括，且仅仅包括协议和域名
+req.add_header('Origin', 'https://passport.weibo.cn')
+# User-Agent 表示 HTTP 客户端程序的信息
+req.add_header(
+    'User-Agent',
+    'Mozilla/6.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/8.0 Mobile/10A5376e Safari/8536.25'
+)
+# Referer 表示 请求中 URI 的原始获取方
+req.add_header(
+    'Referer',
+    'https://passport.weibo.cn/signin/login?entry=mweibo&res=wel&wm=3349&r=http%3A%2F%2Fm.weibo.cn%2F'
+)
+
+# data 参数以 bytes 传入
+with request.urlopen(req, data=login_data.encode('utf-8')) as f:
+    print('Status:', f.status, f.reason)
+    for k, v in f.getheaders():
+        print('%s: %s' % (k, v))
+    print('Data:', f.read().decode('utf-8'))
+```
+
+### Handler
+
+通过代理访问
+
+```python
+proxy_handler = urllib.request.ProxyHandler({'http': 'http://www.example.com:3128/'})
+proxy_auth_handler = urllib.request.ProxyBasicAuthHandler()
+proxy_auth_handler.add_password('realm', 'host', 'username', 'password')
+opener = urllib.request.build_opener(proxy_handler, proxy_auth_handler)
+with opener.open('http://www.example.com/login.html') as f:
+    pass
+```
+
+## XML
+
+### DOM
+
+把整个`XML`读入内存，解析为树，占内存大，解析慢
+
+### SAX
+
+流模式，占内存小，解析块，需要自己处理事务
+
+```python
+from xml.parsers.expat import ParserCreate
+
+
+class DefaultSaxHandler(object):
+    def start_element(self, name, attrs):
+        print('sax:start_element: %s, attrs: %s' % (name, str(attrs)))
+
+    def end_element(self, name):
+        print('sax:end_element: %s' % name)
+
+    def char_data(self, text):
+        print('sax:char_data: %s' % text)
+
+
+xml = r'''<?xml version="1.0"?>
+<ol>
+    <li><a href="/python">Python</a></li>
+    <li><a href="/ruby">Ruby</a></li>
+</ol>
+'''
+
+handler = DefaultSaxHandler()
+parser = ParserCreate()
+parser.StartElementHandler = handler.start_element
+parser.EndElementHandler = handler.end_element
+# 可能会被分为多次调用，需要在 EndElementHandler 处合并
+parser.CharacterDataHandler = handler.char_data
+parser.Parse(xml)
+```
+
+通过 start 找到需要的节点，把节点数据保存起来，在 end 处对数据合并并做处理
+
+## HTMLParser
+
+编写搜索引擎，先爬取目标网页，然后解析页面，获取内容
+
+`HTML`是`XML`的子集，是不严谨的`XML`
+
+解析`HTML`的方式与`SAX`解析`XML`类似，自定义继承自`HTMLParser`的类，实现相关事件的相应
+
+```python
+from html.parser import HTMLParser
+
+
+class MyHTMLParser(HTMLParser):
+    def handle_starttag(self, tag, attrs):
+        print('<%s>' % tag)
+
+    def handle_endtag(self, tag):
+        print('</%s>' % tag)
+
+    def handle_startendtag(self, tag, attrs):
+        print('<%s/>' % tag)
+
+    def handle_data(self, data):
+        print(data)
+
+    def handle_comment(self, data):
+        print('<!--', data, '-->')
+
+    def handle_entityref(self, name):
+        print('&%s;' % name)
+
+    def handle_charref(self, name):
+        print('&#%s;' % name)
+
+
+parser = MyHTMLParser()
+parser.feed('''<html>
+<head></head>
+<body>
+<!-- test html parser -->
+    <p>Some <a href=\"#\">html</a> HTML&nbsp;tutorial...<br>END</p>
+</body></html>''')
+```
+
+`feed()`可以分多次调用
+
+# 十六、常用第三方模块
+
+`PyPI`
+
+the Python Package Index，所有第三方模块都会在此注册
+
+## Pillow
+
+[官方文档](https://pillow.readthedocs.org/)
+
+```shell
+$ pip install pillow
+```
+
+**操作图片**
+
+```python
+from PIL import Image, ImageFilter
+
+# 打开一个jpg图像文件，注意是当前路径:
+im = Image.open('test.jpg')
+# 获得图像尺寸:
+w, h = im.size
+print('Original image size: %sx%s' % (w, h))
+# 缩放到50%:
+im.thumbnail((w//2, h//2))
+print('Resize image to: %sx%s' % (w//2, h//2))
+# 把缩放后的图像用jpeg格式保存:
+im.save('thumbnail.jpg', 'jpeg')
+
+# 应用模糊滤镜:
+im2 = im.filter(ImageFilter.BLUR)
+im2.save('blur.jpg', 'jpeg')
+```
+
+**绘图**
+
+```python
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+
+import random
+
+# 随机字母:
+def rndChar():
+    return chr(random.randint(65, 90))
+
+# 随机颜色1:
+def rndColor():
+    return (random.randint(64, 255), random.randint(64, 255), random.randint(64, 255))
+
+# 随机颜色2:
+def rndColor2():
+    return (random.randint(32, 127), random.randint(32, 127), random.randint(32, 127))
+
+# 240 x 60:
+width = 60 * 4
+height = 60
+image = Image.new('RGB', (width, height), (255, 255, 255))
+# 创建Font对象，可以根据操作系统提供绝对路径
+font = ImageFont.truetype('Arial.ttf', 36)
+# 创建Draw对象:
+draw = ImageDraw.Draw(image)
+# 填充每个像素:
+for x in range(width):
+    for y in range(height):
+        draw.point((x, y), fill=rndColor())
+# 输出文字:
+for t in range(4):
+    draw.text((60 * t + 10, 10), rndChar(), font=font, fill=rndColor2())
+# 模糊:
+image = image.filter(ImageFilter.BLUR)
+image.save('code.jpg', 'jpeg')
+```
+
+## requests
+
+比`urllib`方便丰富的网络资源访问模块
+
+```shell
+$ pip install requests
+```
+
+```python
+import requests
+r = requests.get('https://www.douban.com/')
+# 返回状态码
+r.status_code
+# 返回内容
+r.text
+# 带参请求，传一个 dict 给 params
+r = requests.get('https://www.douban.com/search', params={'q': 'python', 'cat': '1001'})
+# 获取编码
+r.encoding
+# 获取 bytes 对象的响应内容
+r.content
+# 直接获取 JSON 类型的响应内容
+r.json()
+# 需要传入 HTTP Header 时，传入一个 dict 给 headers
+r = requests.get('https://www.douban.com/', headers={'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit'})
+# POST 请求只需将 get 变为 post，data 参数以 dict 传入
+r = requests.post('https://accounts.douban.com/login', data={'form_email': 'abc@example.com', 'form_password': '123456'})
+# 默认使用 application/x-www-form-urlencoded 对 POST 数据编码，如需传递 JSON 数据，可直接使用 json 传入
+r = requests.post(url, json={'key': 'value'})
+
+# 上传文件
+upload_files = {'file': open('report.xls', 'rb')}
+r = requests.post(url, files=upload_files)
+
+# 响应头
+r.headers
+# 获取指定 cookie
+r.cookies['ts']
+
+# 以 dict 传入 cookies
+r = requests.get(url, cookies={'token':'12345', 'status': 'working'})
+
+# 2.5秒后超时
+r = requests.get(url, timeout=2.5)
+```
+
+## chardet
+
+对未知编码的 bytes 进行编码猜测（通过特征字符的判断）
+
+```shell
+pip install chardet
+```
+
+```python
+>>> chardet.detect(b'Hello world')
+{'encoding': 'ascii', 'confidence': 1.0, 'language': ''}
+```
+
+## psutil
+
+process and system utilities，跨平台系统监控模块
+
+```shell
+pip install psutil
+```
+
+**CPU**
+
+```python
+import psutil
+# CPU逻辑数量
+psutil.cpu_count()
+# CPU物理核心
+psutil.cpu_count(logical=False)
+# CPU的用户／系统／空闲时间
+psutil.cpu_times()
+# CPU 使用率
+psutil.cpu_percent(interval=1, percpu=True)
+```
+
+**Memory**
+
+```python
+# 物理内存信息
+psutil.virtual_memory()
+# 交换区信息
+psutil.swap_memory()
+```
+
+**Disk**
+
+```python
+# 磁盘分区信息
+psutil.disk_partitions()
+# 磁盘使用情况
+psutil.disk_usage('/')
+# 磁盘 IO
+psutil.disk_io_counters()
+```
+
+**Network**
+
+```python
+# 获取网络读写字节／包的个数
+psutil.net_io_counters()
+# 获取网络接口信息
+psutil.net_if_addrs()
+# 获取网络接口状态
+psutil.net_if_stats()
+网络连接信息
+psutil.net_connections()
+```
+
+**process**
+
+```python
+# 所有进程ID
+psutil.pids()
+# 获取指定进程ID=3776，其实就是当前Python交互环境
+p = psutil.Process(3776)
+# 进程名称
+p.name()
+# 进程exe路径
+p.exe()
+# 进程工作目录
+p.cwd()
+# 进程启动的命令行
+p.cmdline()
+# 父进程ID
+p.ppid()
+# 父进程
+p.parent()
+# 子进程列表
+p.children()
+# 进程状态
+p.status()
+# 进程用户名
+p.username()
+# 进程创建时间
+p.create_time()
+# 进程终端
+p.terminal()
+# 进程使用的CPU时间
+p.cpu_times()
+# 进程使用的内存
+p.memory_info()
+# 进程打开的文件
+p.open_files()
+# 进程相关网络连接
+p.connections()
+# 进程的线程数量
+p.num_threads()
+# 所有线程信息
+p.threads()
+# 进程环境变量
+p.environ()
+# 结束进程
+p.terminate()
+# 模拟 ps 命令效果，查看当前所有进程状态
+psutil.test()
+```
+
+# 十七、virtualenv
+
+用于创建独立的 python 运行环境，解决模块多版本冲突问题
+
+使用`source`进入`virtualenv`环境时，`virtualenv`会修改相关环境变量，让`python`和`pip`命令均指向当前`virtualenv`环境
+
+```shell
+# 不复制系统 python 环境中的第三方包
+$ virtualenv --no-site-package venv
+# 进入创建的 python 环境
+$ source venv/bin/activate
+# 退出当前 python 环境
+$ deactivate
+```
 
 # todo:
 
@@ -2792,3 +3490,5 @@ c.update('hello')
 5. Python 利用多线程使用多核 CPU（GIL）
 6. BaseManager 的实现，为什么只能在 if \_\_name\_\_ == '\_\_main\_\_': 下调用
 7. deque 的实现原理
+8. struct 的数据类型
+9. 生成器实现协程的原理
