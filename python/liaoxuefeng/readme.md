@@ -2559,6 +2559,58 @@ def name_of_email(addr):
 
 ## datetime
 
+处理日期和时间的模块
+
+```python
+# 前一个 datetime 是模块，后一个是类
+from datetime import datetime
+```
+
+**now()**
+
+```python
+>>> datetime.now()
+datetime.datetime(2020, 11, 22, 10, 42, 2, 59763)
+```
+
+**datetime()**
+
+```python
+>>> dt = datetime(2020, 11, 22, 10, 30)
+>>> dt
+datetime.datetime(2020, 11, 22, 10, 30)
+```
+
+**timestamp**
+
+1970 年 1 月 1 日 00:00:00 UTC+00:00 时区的时刻为`epoch time`(新纪元时间)，当前时间是相对于`epoch time`的秒数，称为`timestamp`
+
+`timestamp`的值与时区无关
+
+```python
+dt = datetime(2020, 11, 22, 10, 30)
+# datetime 转 timestamp
+t = dt.timestamp()
+# timestamp 转 datetime 本地时间
+dt = datetime.fromtimestamp(t)
+# timestamp 转 datetime utc 时间
+dt_utc = datetime.utcfromtimestamp(t)
+```
+
+**strptime()**
+
+[时间格式](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior)
+
+```python
+cday = datetime.strptime('2020-11-22 10:20:20', '%Y-%m-%d %H:%M:%S')
+```
+
+**strftime()**
+
+```python
+
+```
+
 # todo:
 
 1. JIT 技术
