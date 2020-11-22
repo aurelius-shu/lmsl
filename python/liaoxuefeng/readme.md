@@ -129,8 +129,16 @@
     - [group](#group)
     - [贪婪匹配](#贪婪匹配)
     - [编译](#编译)
-- [常用内建模块](#常用内建模块)
+- [十五、常用内建模块](#十五-常用内建模块)
   - [datetime](#datetime)
+  - [colections](#colections)
+    - [namedtuple()](#namedtuple)
+    - [deque](#deque)
+    - [defaultdict](#defaultdict)
+    - [OrderedDict](#ordereddict)
+    - [ChainMap](#chainmap)
+    - [Counter](#counter)
+  - [base64](#base64)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -2553,7 +2561,7 @@ def name_of_email(addr):
     return m.group(1) if m and m.group(1) else m.group(2)
 ```
 
-# 常用内建模块
+# 十五、常用内建模块
 
 无需安装和配置即可使用
 
@@ -2588,28 +2596,192 @@ datetime.datetime(2020, 11, 22, 10, 30)
 `timestamp`的值与时区无关
 
 ```python
-dt = datetime(2020, 11, 22, 10, 30)
+>>> dt = datetime(2020, 11, 22, 10, 30)
 # datetime 转 timestamp
-t = dt.timestamp()
+>>> t = dt.timestamp()
 # timestamp 转 datetime 本地时间
-dt = datetime.fromtimestamp(t)
+>>> dt = datetime.fromtimestamp(t)
 # timestamp 转 datetime utc 时间
-dt_utc = datetime.utcfromtimestamp(t)
+>>> dt_utc = datetime.utcfromtimestamp(t)
 ```
 
 **strptime()**
 
-[时间格式](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior)
+`str`转`datetime` [时间格式](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior)
 
 ```python
-cday = datetime.strptime('2020-11-22 10:20:20', '%Y-%m-%d %H:%M:%S')
+>>> cday = datetime.strptime('2020-11-22 10:20:20', '%Y-%m-%d %H:%M:%S')
 ```
 
 **strftime()**
 
-```python
+`datetime`转`str`
 
+```python
+>>> datetime.now().strftime('%a,%b %d %H:%M')
+'Sun,Nov 22 11:38'
 ```
+
+**timedelta**
+
+```python
+>>> from datetime import timedelta
+# 减 2天 2 小时
+>>> datetime.now() - timedelta(days=2, hours=2)
+datetime.datetime(2020, 11, 20, 9, 41, 8, 544137)
+```
+
+**timezone**
+
+通过`timedelta`创建`timezone`
+
+```python
+>>> from datetime import timezone
+# 创建时区 UTC+8:00
+>>> tz_utc_8 = timezone(timedelta(hours=8))
+>>> dt = datetime.now()
+# 强制设置时区 为 UTC+8
+>>> dt = dt.replace(tzinfo=tz_utc_8)
+datetime.datetime(2020, 11, 22, 12, 4, 41, 559771, tzinfo=datetime.timezone(datetime.timedelta(seconds=28800)))
+```
+
+**时区转换**
+
+`utcnow()`可以获得当前 UTC 时间，给 UTC 时间设置好时区后，利用`astimezone()`可以转换任意时区的时间
+
+```python
+>>> utc_now = datetime.utcnow().replace(tzinfo=timezone.utc)
+>>> utc_8_now = utc_now.astimezone(timezone(timedelta(hours=8)))
+>>> utc_9_now = utc_8_now.astimezone(timezone(timedelta(hours=9)))
+```
+
+不是必须从 UTC+0:00 时区转换到其他时区，任何带有时区的时间都可以正确的转换
+
+## colections
+
+内建模块集合
+
+### namedtuple()
+
+`namedtuple()`可以用来创建一个`tuple`对象，并规定`tuple`元素的个数，从而使用属性而不是索引的方式应用元素
+
+```python
+>>> rom collections import namedtuple
+>>> Point = namedtuple('Point', ['x', 'y'])
+>>> p = Point(1, 2)
+>>> p.x
+1
+>>> p[0]
+1
+```
+
+`Point`对象是`tuple`对象的子类
+
+### deque
+
+实现来高效插入和删除（相对 list，list 是线性存储）的双向列表
+
+```python
+>>> from collections import deque
+>>> q = deque(['a', 'b', 'c'])
+>>> q.append('x')
+>>> q.appendleft('y')
+>>> q
+deque(['y', 'a', 'b', 'c', 'x'])
+```
+
+append 和 pop 操作列表的末尾
+appendleft 和 popleft 操作列表的开头
+
+### defaultdict
+
+含默认值的`dict`，与`dict`的使用相同
+
+```python
+>>> from collections import defaultdict
+# 默认值使用函数设置
+>>> dd = defaultdict(lambda :'N/A')
+>>> dd['key']
+'N/A'
+```
+
+### OrderedDict
+
+以`Key`插入的顺序排序的`dict`
+
+```python
+>>> OrderedDict(a=1, b=2, c=3)
+OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+```
+
+`FIFO`
+
+```python
+from collections import OrderedDict
+
+
+class LastUpdatedOrderedDict(OrderedDict):
+    def __init__(self, capacity):
+        super(LastUpdatedOrderedDict, self).__init__()
+        self._capacity = capacity
+
+    def __setitem__(self, key, value):
+
+        containKey = 1 if key in self else 0
+        print(len(self))
+        if len(self) - containKey >= self._capacity:
+            last = self.popitem(last=False)
+            print('remove:', last)
+        if containKey:
+            del self[key]
+            print('set:', (key, value))
+        else:
+            print('add:', (key, value))
+        OrderedDict.__setitem__(self, key, value)
+```
+
+### ChainMap
+
+将多个`dict`对象串起来，在查找的时候，实际按照内部`dict`顺序一次查找
+
+```python
+from argparse import Namespace
+from collections import ChainMap
+import os, argparse
+
+defauts = {'user': 'guest', 'color': 'red'}
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-u', '--user')
+parser.add_argument('-c', '--color')
+namespace = parser.parse_args()
+command_line_args = {k: v for k, v in vars(namespace).items() if v}
+# 查找时，现在 command_line_args 中查找，如果没有，再在 os.environ 查找，最后时 defaults
+combined_args = ChainMap(command_line_args, os.environ, defauts)
+
+print('color=%s' % combined_args['color'])
+print('user=%s' % combined_args['user'])
+```
+
+### Counter
+
+计数器，实际也是一个`dict`子类
+
+```python
+from collections import Counter
+c = Counter
+
+# 手动统计
+for ch in 'programing':
+    c[ch]=c[ch]+1
+
+# 自动添加
+c.update('hello')
+```
+
+## base64
+
+
 
 # todo:
 
@@ -2619,3 +2791,4 @@ cday = datetime.strptime('2020-11-22 10:20:20', '%Y-%m-%d %H:%M:%S')
 4. open() 模式的`+`
 5. Python 利用多线程使用多核 CPU（GIL）
 6. BaseManager 的实现，为什么只能在 if \_\_name\_\_ == '\_\_main\_\_': 下调用
+7. deque 的实现原理
