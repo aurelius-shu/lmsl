@@ -163,6 +163,17 @@
   - [chardet](#chardet)
   - [psutil](#psutil)
 - [十七、virtualenv](#十七-virtualenv)
+- [十八、图形界面](#十八-图形界面)
+  - [Tkinter](#tkinter)
+  - [turtle](#turtle)
+- [十九、网络编程](#十九-网络编程)
+  - [TCP/IP 简介](#tcpip-简介)
+  - [TCP 编程](#tcp-编程)
+    - [服务端](#服务端)
+    - [客户端](#客户端)
+  - [UDP 编程](#udp-编程)
+    - [服务端](#服务端-1)
+    - [客户端](#客户端-1)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -3480,6 +3491,191 @@ $ source venv/bin/activate
 # 退出当前 python 环境
 $ deactivate
 ```
+
+# 十八、图形界面
+
+## Tkinter
+
+Tkinter 封装了访问 Tk 的接口，Tk 是一个图形库，使用 Tcl 语言开发，支持多操作系统，Tk 会调用操作系统提供本地 GUI 接口
+
+复杂的 GUI 用操作系统原生语言或库编写
+
+```python
+from tkinter import *
+import tkinter.messagebox as messagebox
+
+
+class Application(Frame):
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.pack()
+        self.createWidgets()
+
+    def createWidgets(self):
+        self.nameInput = Entry(self)
+        # 将 widget 加到父容器
+        self.nameInput.pack()
+        # 点击触发 hello
+        self.alertButton = Button(self, text='Hello', command=self.hello)
+        self.alertButton.pack()
+
+    def hello(self):
+        name = self.nameInput.get() or 'world'
+        messagebox.showinfo('Message', 'Hello, %s' % name)
+
+
+app = Application()
+# 设置窗口标题
+app.master.title('Hello World')
+# 主消息循环
+app.mainloop()
+```
+
+## turtle
+
+[官方文档](https://docs.python.org/3.3/library/turtle.html#turtle-methods)
+
+```python
+def draw_star(x, y):
+    pu()
+    goto(x, y)
+    pd()
+    # set heading: 0
+    seth(0)
+    for i in range(5):
+        fd(40)
+        rt(144)
+
+
+for x in range(0, 250, 50):
+    draw_star(x, 0)
+
+done()
+```
+
+# 十九、网络编程
+
+网络通信就是两个进程之间的通信
+
+## TCP/IP 简介
+
+`IP 地址` 计算机的网络接口，通常是网卡，可有多个，是 32 位整数（IPv4），IPv6 是 128 位整数
+
+`IP 协议` 负责把数据从一台计算机通过网络发送到另一台计算机，数据被分割成小块，IP 包特点是速度快，途径多个路由，不保证到达，也不保证顺序
+
+`TCP 协议` 在 IP 协议基础上，负责在两台计算机上建立起可靠连接，保证数据包顺序到达。对每个 IP 包编号，顺序发收，失败的自动重发
+
+`TCP 报文` 传输的数据，源 IP、目标 IP、源端口号、目标端口号
+
+HTTP 协议、SMTP 协议都建立在 TCP 协议基础上
+
+一个进程可能与多个计算机建立连接，因此可能申请很多个端口
+
+## TCP 编程
+
+`Socket`通常是表示打开一个网络链接，需要知道目标计算机的 IP 地址、端口号，还有指定协议类型
+
+### 服务端
+
+一个服务端`Socket`依赖 4 项确定唯一：服务器地址，服务器端口，客户端地址，客户端端口
+
+服务端接收的每个连接需要一个新进程/线程来处理，否则服务器一次只能服务一个客户端
+
+```python
+import socket, threading, time
+# 创建一个 Socket
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# 绑定地址和端口
+# 0.0.0.0 是广播地址，集所有网络地址
+# 127.0.0.1 表示本机地址
+s.bind(('localhost', 6666))
+# 开始监听，5 是最大连接数
+s.listen(5)
+print('Waiting for connection...')
+
+def tcplink(sock, addr):
+    print('accept new connection from %s:%s...' % addr)
+    sock.send(b'Welcome.')
+
+    while True:
+        data = sock.recv(1024)
+        time.sleep(1)
+        if not data or data.decode('utf-8') == 'exit':
+            break
+        print(f"receive, {data.decode('utf-8')}")
+        sock.send(('hello, %s.' % data.decode('utf-8')).encode('utf-8'))
+    sock.close()
+    print('connection from %s:%s closed.' % addr)
+
+# 通过永久循环接收客户端连接
+while True:
+    # 接收并返回一个客户端连接
+    sock, addr = s.accept()
+    # 构造一个线程处理这个连接
+    t = threading.Thread(target=tcplink, args=(sock, addr))
+    # 启动线程
+    t.start()
+```
+
+### 客户端
+
+```python
+import socket
+# AF_INET 表示 IPv4
+# SOCK_STREAM 表示 TCP 协议
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# HTTP 协议规定客户端必须先发起请求，由服务端接收后再发送数据给客户端
+# 端口 1024 以内为标准端口，如 SMTP 25，FTP 21
+s.connect(('localhost', 6666))
+# 接收指定长度的字节数据
+print(s.recv(1024).decode('utf-8'))
+for data in [b'Michael', b'Tracy', b'Sarah']:
+    s.send(data)
+    print(s.recv(1024).decode('utf-8'))
+s.send(b'exit')
+s.close()
+```
+
+用 TCP 协议进行 Socket 编程，客户端需要主动连接服务器 IP 和端口，服务端需要先监听指定端口，通常服务器程序会无限运行下去，同一个端口 Socket 绑定后，就不能被另一个 Socket 绑定（同协议类型）
+
+## UDP 编程
+
+相对 TCP 的可靠连接，UDP 是面向无连接的协议，UDP 协议知道对方 IP 和端口就能发送数据包，但不能保证送达，速度快
+
+### 服务端
+
+```python
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# UDP 不需要listen()，直接接收
+s.bind(('localhost', 6666))
+
+print('bind udp on 6666...')
+
+while True:
+    # 返回数据和客户端IP、端口
+    data, addr = s.recvfrom(1024)
+    print('Received from %s:%s.' % addr)
+    # 向客户端回发
+    s.sendto(b'Hello, %s.' % data, addr)
+```
+
+### 客户端
+
+```python
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+for data in [b'Michael', b'Tracy', b'Sarah']:
+    # 不需要 connect()
+    s.sendto(data, ('localhost', 6666))
+    print(s.recv(1024).decode('utf-8'))
+s.close()
+```
+
+**服务器绑定相同的 UDP 端口和 TCP 端口不冲突**
 
 # todo:
 
