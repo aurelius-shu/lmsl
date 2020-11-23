@@ -1,6 +1,6 @@
 import socket
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # UDP 不需要listen()，直接接收
 s.bind(('localhost', 6666))
 
