@@ -175,6 +175,25 @@
     - [服务端](#服务端-1)
     - [客户端](#客户端-1)
 - [二十、电子邮件](#二十-电子邮件)
+  - [SMTP 发送邮件](#smtp-发送邮件)
+  - [POP3 收取邮件](#pop3-收取邮件)
+- [二十一、访问数据库](#二十一-访问数据库)
+  - [使用 SQLite](#使用-sqlite)
+  - [使用 MySQL](#使用-mysql)
+  - [使用 SQLAlchemy](#使用-sqlalchemy)
+    - [安装](#安装)
+    - [DBSession](#dbsession)
+    - [add](#add)
+    - [query](#query)
+    - [relationship](#relationship)
+- [二十二、Web 开发](#二十二-web-开发)
+  - [HTTP 协议简介](#http-协议简介)
+    - [HTTP 请求](#http-请求)
+    - [HTTP 格式](#http-格式)
+  - [HTML 简介](#html-简介)
+    - [CSS](#css)
+    - [JavaScript](#javascript)
+  - [WSGI 接口](#wsgi-接口)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -3684,7 +3703,474 @@ s.close()
 
 # 二十、电子邮件
 
+发送邮件过程如下：
 
+```html
+发件人 -> MUA -> MTA -> 若干 MTA -> MDA <- MUA <- 收件人
+```
+
+`MUA` Mail User Agent，邮件用户代理
+`MTA` Mail Transfer Agent，邮件传输代理
+`MDA` Mail Delivery Agent，邮件投递代理
+
+`发送` 编写邮件用 MUA 发到 MTA
+`收件` 编写 MUA 从 MDA 收取邮件
+
+`SMTP` Simple Mail Transfer Protocol，负责 MUA -> MTA， MTA -> MTA
+
+`POP3` Post Office Protocol v3，负责 MUA -> MDA
+
+`IMAP` Internet Message Access Protocol，负责 MUA -> MDA，可收取邮件和操作 MDA 上的邮件
+
+使用邮件客户端需：
+
+- 发送，配置 SMTP 服务器
+- 收件，配置 POP3 或 IMAP 服务器
+
+## SMTP 发送邮件
+
+`email`模块用于构造邮件，`smtplib`用于发送邮件
+
+```python
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+from email.header import Header
+from email.utils import parseaddr, formataddr
+import smtplib
+
+
+def _format_addr(s):
+    name, addr = parseaddr(s)
+    return formataddr((Header(name, 'utf-8').encode(), addr))
+
+
+# 输入Email地址和口令:
+from_addr = 'aurelius-shu@outlook.com'
+# QQ 邮箱密码需换成短信授权码
+password = input('password: ')
+# 输入收件人地址:
+to_addr = 'aurelius-shu@qq.com'
+# 输入SMTP服务器地址:
+smtp_server = 'smtp.office365.com'
+
+# 邮件对象:
+msg = MIMEMultipart('alternative')
+msg['From'] = _format_addr('发件人 <%s>' % from_addr)
+# 多个时以逗号分隔
+msg['To'] = _format_addr('收件人 <%s>' % to_addr)
+msg['Subject'] = Header('标题', 'utf-8').encode()
+
+# msg = MIMEText(
+#     '<html><body><h1>Hello</h1>' +
+#     '<p>send by <a href="http://www.python.org">Python</a>...</p>' +
+#     '</body></html>', 'html', 'utf-8')
+msg.attach(MIMEText('hello, send by Python...', 'plain', 'utf-8'))
+# 邮件正文是MIMEText:
+# msg.attach(MIMEText('send with file...', 'plain', 'utf-8'))
+msg.attach(
+    MIMEText(
+        '<html><body><h1>Hello</h1><p><img src="cid:0"></p></body></html>',
+        'html', 'utf-8'))
+
+# 添加附件就是加上一个MIMEBase，从本地读取一个图片:
+with open(r'D:\Users\Aurelius\Pictures\threefish.jpg', 'rb') as f:
+    # 设置附件的MIME和文件名，这里是png类型:
+    mime = MIMEBase('image', 'png', filename='threefish.jpg')
+    # 加上必要的头信息:
+    mime.add_header('Content-Disposition',
+                    'attachment',
+                    filename='threefish.jpg')
+    mime.add_header('Content-ID', '<0>')
+    mime.add_header('X-Attachment-Id', '0')
+    # 把附件的内容读进来:
+    mime.set_payload(f.read())
+    # 用Base64编码:
+    encoders.encode_base64(mime)
+    # 添加到MIMEMultipart:
+    msg.attach(mime)
+
+# SMTP协议默认端口是 25
+# SMTP 安全连接端口 587
+server = smtplib.SMTP(smtp_server, 587)
+# set_debuglevel(1) 可以打印 SMTP 服务器交互信息
+server.set_debuglevel(1)
+# 表示自己需要身份验证
+server.ehlo()
+# 创建 ssl 安全连接，SMTP encryption method STARTTLS
+server.starttls()
+server.login(from_addr, password)
+# [to_addr] 可以指定发送多人
+server.sendmail(from_addr, [to_addr], msg.as_string())
+server.quit()
+```
+
+**发送 HTML 邮件** 内容正文换成`HTML`文本，`plain`换成`html`
+
+**发送附件** 可以看作包含若干部分的邮件，文本和若干附件用 `MIMEMultipart` 对象代表邮件本身，附加邮件正文（`MIMEText`）和附件（`MIMEBase`）
+
+**图片嵌入** 先把图片当作附件添加，再在 `HTML` 通过应用 `src='cid:x'` 把附件图片嵌入，避免直接在 HTML 邮件链接图片地址，外部链接会被大部分邮件服务商屏蔽
+
+**同时支持 HTML 与 Plain** 指定 `MIMEMultipart` 的 `subtype` 为 `alternative，然后附加` `HTML` 和 `Plain`
+
+**加密 SMTP** 先创建`ssl`安全连接，再使用`SMTP`协议发送邮件
+
+**[email.mine](https://docs.python.org/3/library/email.mime.html)** 构建一个邮件对象就是构建一个`Message`，文本对象是`MIMEText`对象，`MIMEImage`对象是图片附件，`MIMEMultipart`对象是组合对象，`MIMEBase`是任何对象
+
+```
+Message
+<- MIMEBase
+   <- MIMEMultipart
+   <- MIMENonMultipart
+      <- MIMEMessage
+      <- MIMEText
+      <- MIMEImage
+```
+
+## POP3 收取邮件
+
+`poplib`模块实现了`POP`协议，`email`模块用来解析原始邮件对象
+
+```python
+from email.parser import Parser
+from email.header import decode_header
+from email.utils import parseaddr
+import poplib
+
+# 输入邮件地址, 口令和POP3服务器地址:
+email = 'aurelius-shu@outlook.com'
+password = input('Password: ')
+pop3_server = 'outlook.office365.com'
+
+# 连接到POP3服务器:
+server = poplib.POP3(pop3_server)
+# 可以打开或关闭调试信息:
+server.set_debuglevel(1)
+# 可选:打印POP3服务器的欢迎文字:
+print(server.getwelcome().decode('utf-8'))
+
+# 身份认证:
+server.user(email)
+server.pass_(password)
+
+# stat()返回邮件数量和占用空间:
+print('Messages: %s. Size: %s' % server.stat())
+# list()返回所有邮件的编号:
+resp, mails, octets = server.list()
+# 可以查看返回的列表类似[b'1 82923', b'2 2184', ...]
+print(mails)
+
+# 获取最新一封邮件, 注意索引号从1开始:
+index = len(mails)
+resp, lines, octets = server.retr(index)
+
+# lines存储了邮件的原始文本的每一行,
+# 可以获得整个邮件的原始文本:
+msg_content = b'\r\n'.join(lines).decode('utf-8')
+# 稍后解析出邮件:
+msg = Parser().parsestr(msg_content)
+
+# 可以根据邮件索引号直接从服务器删除邮件:
+# server.dele(index)
+# 关闭连接:
+server.quit()
+
+
+# indent用于缩进显示:
+def print_info(msg, indent=0):
+    if indent == 0:
+        for header in ['From', 'To', 'Subject']:
+            value = msg.get(header, '')
+            if value:
+                if header == 'Subject':
+                    value = decode_str(value)
+                else:
+                    hdr, addr = parseaddr(value)
+                    name = decode_str(hdr)
+                    value = u'%s <%s>' % (name, addr)
+            print('%s%s: %s' % ('  ' * indent, header, value))
+    if (msg.is_multipart()):
+        parts = msg.get_payload()
+        for n, part in enumerate(parts):
+            print('%spart %s' % ('  ' * indent, n))
+            print('%s--------------------' % ('  ' * indent))
+            print_info(part, indent + 1)
+    else:
+        content_type = msg.get_content_type()
+        if content_type == 'text/plain' or content_type == 'text/html':
+            content = msg.get_payload(decode=True)
+            charset = guess_charset(msg)
+            if charset:
+                content = content.decode(charset)
+            print('%sText: %s' % ('  ' * indent, content + '...'))
+        else:
+            print('%sAttachment: %s' % ('  ' * indent, content_type))
+
+
+def decode_str(s):
+    value, charset = decode_header(s)[0]
+    if charset:
+        value = value.decode(charset)
+    return value
+
+
+def guess_charset(msg):
+    charset = msg.get_charset()
+    if charset is None:
+        content_type = msg.get('Content-Type', '').lower()
+        pos = content_type.find('charset=')
+        if pos >= 0:
+            charset = content_type[pos + 8:].strip()
+    return charset
+```
+
+`POP3`收取的`Message`对象可能是一个嵌套对象，所以解析要递归的进行
+
+# 二十一、访问数据库
+
+Python 定义了一套`DB-API`，任何数据库要连接到 Python，只需要提供符合 Python 标准的数据库驱动即可
+
+## 使用 SQLite
+
+签入式数据库，本身是一个文件，`C`写的，体积很小，常集成在应用程序
+
+**操作关系数据库**
+
+- 连接数据库（Connection）
+- 打开游标，通过游标执行 SQL，获取结果
+
+```python
+# 导入SQLite驱动:
+import sqlite3
+# 连接到SQLite数据库 test.db
+# 如果文件不存在，会自动在当前目录创建:
+conn = sqlite3.connect('test.db')
+# 创建一个Cursor:
+cursor = conn.cursor()
+# 执行一条SQL语句，创建user表:
+# <sqlite3.Cursor object at 0x10f8aa260>
+cursor.execute('create table user (id varchar(20) primary key, name varchar(20))')
+# 继续执行一条SQL语句，插入一条记录:
+# <sqlite3.Cursor object at 0x10f8aa260>
+cursor.execute('insert into user (id, name) values (\'1\', \'Michael\')')
+# 通过 rowcount 获得插入(影响)的行数:
+# 1
+cursor.rowcount
+# 关闭Cursor:
+cursor.close()
+# 提交事务:
+conn.commit()
+# 关闭Connection:
+conn.close()
+
+conn = sqlite3.connect('test.db')
+cursor = conn.cursor()
+# 执行查询语句:
+# <sqlite3.Cursor object at 0x10f8aa340>
+cursor.execute('select * from user where id=?', ('1',))
+# 获得查询结果集:
+# [('1', 'Michael')]
+values = cursor.fetchall()
+cursor.close()
+conn.close()
+```
+
+## 使用 MySQL
+
+**安装驱动**
+
+```shell
+# 官方驱动
+$ pip install mysql-connector-python --allow-external mysql-connector-python
+# 或者其他驱动
+$ pip install mysql-connector
+```
+
+```python
+# 导入MySQL驱动:
+import mysql.connector
+# 注意把password设为你的root口令:
+conn = mysql.connector.connect(user='root', password='password', database='test')
+cursor = conn.cursor()
+# 创建user表:
+cursor.execute('create table user (id varchar(20) primary key, name varchar(20))')
+# 插入一行记录，注意MySQL的占位符是%s:
+# cursor.rowcount 为 1
+cursor.execute('insert into user (id, name) values (%s, %s)', ['1', 'Michael'])
+# 提交事务:
+conn.commit()
+cursor.close()
+
+# 运行查询:
+cursor = conn.cursor()
+cursor.execute('select * from user where id = %s', ('1',))
+# [('1', 'Michael')]
+values = cursor.fetchall()
+# 关闭Cursor和Connection:
+# True
+cursor.close()
+conn.close()
+```
+
+Python 的`DB-API`定义是通用的，所有操作`MySQL`的数据库代码和`SQLite`类似
+
+`MySQL`的`SQL`占位符是`%s`，`SQLite`是`?`
+
+## 使用 SQLAlchemy
+
+Python 中最有名的`ORM`框架
+
+`ORM` Object-Relational Mapping，把关系数据库的表结构映射到对象上
+
+### 安装
+
+```shell
+$ pip install sqlalchemy
+```
+
+### DBSession
+
+```python
+# 导入:
+from sqlalchemy import Column, String, create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+# 创建对象的基类:
+Base = declarative_base()
+
+# 定义User对象:
+class User(Base):
+    # 表的名字:
+    __tablename__ = 'user'
+
+    # 表的结构:
+    id = Column(String(20), primary_key=True)
+    name = Column(String(20))
+
+# 初始化数据库连接:
+# '数据库类型+数据库驱动名称://用户名:口令@机器地址:端口号/数据库名'
+engine = create_engine('mysql+mysqlconnector://root:password@localhost:3306/test')
+# 创建DBSession类型:
+DBSession = sessionmaker(bind=engine)
+```
+
+### add
+
+```python
+# 创建session对象:
+session = DBSession()
+# 创建新User对象:
+new_user = User(id='5', name='Bob')
+# 添加到session:
+session.add(new_user)
+# 提交即保存到数据库:
+session.commit()
+# 关闭session:
+session.close()
+```
+
+### query
+
+```python
+# 创建Session:
+session = DBSession()
+# 创建Query查询，filter是where条件，最后调用one()返回唯一行，如果调用all()则返回所有行:
+user = session.query(User).filter(User.id=='5').one()
+# 打印类型和对象的name属性:
+print('type:', type(user))
+print('name:', user.name)
+# 关闭Session:
+session.close()
+```
+
+### relationship
+
+```python
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(String(20), primary_key=True)
+    name = Column(String(20))
+    # 一对多:
+    books = relationship('Book')
+
+class Book(Base):
+    __tablename__ = 'book'
+
+    id = Column(String(20), primary_key=True)
+    name = Column(String(20))
+    # “多”的一方的book表是通过外键关联到user表的:
+    user_id = Column(String(20), ForeignKey('user.id'))
+```
+
+# 二十二、Web 开发
+
+`CS` Client/Server 客户端升级麻烦
+`BS` Browser/Server
+
+除了重量级软件如`Office`、`PS`等，大部分软件都以`Web`形式提供，如新浪新闻、博客、微博等
+
+**`Web`开发的几个阶段**
+
+1. 静态 Web 页面，每次修改页面都直接通过手动修改 HTML 源文件保存，无法处理交互
+2. CGI，Common Gateway Interface，用于处理用户发送的动态数据（C/C++编写）
+3. ASP/JSP/PHP，脚本语言开发效率高，与 HTML 结合紧密，迅速取代低级语言的 CGI
+4. MVC，为了解决直接用脚本语言签入 HTML 导致的可维护性差的问题，Web 应用引入了 `Model-View-Controller`的模式，简化 Web 开发
+5. 目前异步开发，MVVM 前端技术层出不穷
+
+## HTTP 协议简介
+
+HTTP/1.1 版本允许多个 HTTP 请求复用一个`TCP`连接
+
+### HTTP 请求
+
+请求-响应模式，一个请求只处理一个响应
+
+> 1. 必须先有客户端向服务端发出请求，请求包括
+
+- 类型：GET、POST、DELETE ...
+- 路径：/full/url/path
+- 域名：www.sina.com.cn
+- 其他 Header
+- 如果是 POST，请求还包括一个 Body
+
+> 2. 服务端想客户端返回 HTTP 响应，响应包括
+
+- 响应代码：200 成功，3XX 重定向，4XX 请求有错，5XX 服务端处理请求错误
+- 响应类型：由 Content-Type 指定
+- 其他 Header
+- Body：包含了响应的内容，网页的 HTML 源码等
+
+> 3. 如果返回的内容还包含其他 HTTP 请求，重复 1. 2
+
+### HTTP 格式
+
+- 每个`Header`一行，多个`Header`用换行符'\r\n'分割
+- `Header`与`Body`用两个'\r\n'分割
+- `Body`的数据类型由`Content-Type`头确定
+- `Content-Encoding`指定压缩方式
+
+## HTML 简介
+
+HTML 定义了一套语法规则，来告诉浏览器如何把网页显示出来
+
+HTML 文档是有一系列 Tag 组成，最外层的 Tag 是`<html>`，规范的要包括`<head>...</head>` 和`<body>...</body>`
+
+HTML 是富文档模型，因此还有一系列 Tag 用来表示链接、图片、表格、表单等
+
+### CSS
+
+`Cascading Style Sheets` 层叠样式表，用来控制 HTML 里所有元素的展现方式
+
+### JavaScript
+
+为了让 HTML 具交互性而添加的，可以内嵌在 HTML，也可以外部链接到 HTML
+
+**对于优秀的 Web 开发人员，精通 HTML、CSS、JavaScript 是必须的**
+
+## WSGI 接口
 
 # todo:
 
@@ -3696,5 +4182,6 @@ s.close()
 6. BaseManager 的实现，为什么只能在 if \_\_name\_\_ == '\_\_main\_\_': 下调用
 7. deque 的实现原理
 8. struct 的数据类型
-9. 生成器实现协程的原理、
+9. 生成器实现协程的原理
 10. http 代理请求
+11. pop3 ssl 连接接收邮件
