@@ -194,6 +194,21 @@
     - [CSS](#css)
     - [JavaScript](#javascript)
   - [WSGI 接口](#wsgi-接口)
+    - [实现 WSGI 接口](#实现-wsgi-接口)
+    - [运行 WSGI](#运行-wsgi)
+  - [使用 Web 框架](#使用-web-框架)
+    - [Flask](#flask)
+    - [其他 Web 框架](#其他-web-框架)
+  - [使用模板](#使用模板)
+    - [MVC](#mvc)
+    - [Jinja2](#jinja2)
+    - [其他模板](#其他模板)
+- [二十三、异步 IO](#二十三-异步-io)
+  - [协程](#协程)
+    - [生产者-消费者模型（协程版）](#生产者-消费者模型协程版)
+  - [asyncio](#asyncio)
+  - [async/await](#asyncawait)
+  - [aiohttp](#aiohttp)
 - [todo:](#todo)
 
 <!-- /code_chunk_output -->
@@ -4172,6 +4187,326 @@ HTML 是富文档模型，因此还有一系列 Tag 用来表示链接、图片�
 
 ## WSGI 接口
 
+`Web Server Gateway Interface`
+
+用于接收 HTTP 请求，解析 HTTP 请求，发送 HTTP 响应的 Python 标准接口，是 Web 服务端或网关端与 Web 业务端或框架端的桥梁
+
+无论多复杂的 Web 应用，入口都是一个 WSGI 处理函数，HTTP 请求的所有输入信息通过`environ`获取，HTTP 响应通过`start_response()`输出`Header`，通过函数返回值输出`Body`
+
+### 实现 WSGI 接口
+
+```python
+def application(environ, start_response):
+    start_response('200 oK', [('Content-Type', 'text/html')])
+    body = f"<h1>Hello, {environ['PATH_INFO'][1:] or 'web'}!</h1>"
+    return [body.encode('utf-8')]
+```
+
+`environ` 一个包含所有 HTTP 请求信息的 dict 对象
+`start_response` 一个发送 HTTP 响应的函数，只能发送一次，格式见上例
+`return` HTTP 响应的 Body，bytes
+
+### 运行 WSGI
+
+Python 内置了一个 WSGI 服务器模块`wsgiref`，纯 Python 编写的参考实例，完全符合 WSGI 标准，单不考虑运行效果，仅供开发和测试使用
+
+```python
+from wsgiref.simple_server import make_server
+
+# 创建一个服务器，IP地址为空，端口是 8000，处理函数是 application
+httpd = make_server('', 8000, application)
+print('Serving HTTP on port 8000...')
+# 开始监听HTTP 请求
+httpd.serve_forever()
+```
+
+## 使用 Web 框架
+
+面对客服端的不同请求，若使用 WSGI，需对`environ`的不同信息作出不同处理逻辑，这样的代码很难维护
+
+Web 框架负责`URL`到函数的映射，解析 HTTP 请求的参数，让我们可以专注于一个函数处理一个`URL`
+
+### Flask
+
+Python 最流行的 Web 框架
+
+**安装**
+
+```shell
+pip install flask
+```
+
+**示例**
+
+```python
+from flask import Flask
+from flask import request
+
+app = Flask(__name__)
+
+
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    return '<h1>Home</h1>'
+
+
+@app.route('/signin', methods=['GET'])
+def signin_form():
+    return '''<form action="/signin" method="post">
+              <p><input name="username"></p>
+              <p><input name="password" type="password"></p>
+              <p><button type="submit">Sign In</button></p>
+              </form>'''
+
+
+@app.route('/signin', methods=['POST'])
+def signin():
+    # 需要从request对象读取表单内容：
+    if request.form['username'] == 'admin' and request.form[
+            'password'] == 'password':
+        return '<h3>Hello, admin!</h3>'
+    return '<h3>Bad username or password.</h3>'
+
+
+if __name__ == "__main__":
+    app.run()
+```
+
+Flask 通过装饰器关联`URL`和函数，通过`request.form['name']`获取表单内容
+
+Flask 自带的服务器（调试使用）端口为 5000
+
+### 其他 Web 框架
+
+- `Django` 全能型
+- `web.py` 小巧
+- `Bottle` 类似 Flask
+- `Tornado` 异步
+
+## 使用模板
+
+分离出 Python 代码与 HTML 代码，HTML 代码全部放在模板里
+
+### MVC
+
+Model-View-Controller
+
+`Controller` 处理 URL 的函数，负责业务逻辑
+
+`View` .html 模板页，负责显示逻辑，通过简单的变量替换，最终输出用户看到的 HTML
+
+`Model` 用来传给 View 替换的变量
+
+### Jinja2
+
+**安装**
+
+```shell
+$ pip install janja2
+```
+
+**示例**
+
+```python
+from flask import Flask, request, render_template
+
+app = Flask(__name__)
+
+
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    # 使用模板: ./templates/home.html
+    return render_template('home.html')
+
+
+@app.route('/signin', methods=['GET'])
+def signin_form():
+    return render_template('form.html')
+
+
+@app.route('/signin', methods=['POST'])
+def signin():
+    # 需要从request对象读取表单内容：
+    username = request.form['username']
+    password = request.form['password']
+    if username == 'admin' and password == 'password':
+        return render_template('signin-ok.html', username=username)
+    return render_template('form.html',
+                           message='Bad username or password',
+                           username=username)
+```
+
+`Flask`通过`render_templates()`函数实现模板的渲染
+
+`{{ name }}`表示一个需要替换的变量
+
+`{% ... %}`表示循环、条件判断等指令
+
+### 其他模板
+
+- `Mako` <% ... %> 和 ${xxx}
+- `Cheetah` <% ... %> 和 ${xxx}
+- `Django` {% ... %} 和 {{ xxx }}
+
+# 二十三、异步 IO
+
+IO 密集型应用程序大大提升系统多任务处理能力
+
+**异步 IO 模型**
+
+一个消息循环，主线程在消息循环中不断重复“读取消息-处理消息”
+
+```python
+# 获取线程池
+loog = get_event_loop()
+while True:
+    # 接收事件消息
+    event = loop.get_event()
+    # 处理事件消息
+    process_event(event)
+```
+
+当遇到 IO 操作，代码只会发出 IO 请求，不等待 IO 结果，当本轮消息结束，下轮接收消息收到 IO 完成时，处理 IO 结果
+
+## 协程
+
+调度策略由程序员自己编写，在用户态完成创建、切换、销毁，通过协作而非抢占，对内核来说不可见的`用户空间线程`
+
+**协程的本质是控制流的主动让出（yield）和恢复（resume）机制**
+
+`子程序` 又叫函数，在所有语言都是层级调用，通过栈实现，一个线程就是执行一个子程序，子程序调用总是一个入口，一次返回，调用顺序明确
+
+`Coroutine` Python 对协程的支持通过`generator`实现，执行时内部可中断，转而执行别的子程序，再适时返回接着执行（类似 CPU 中断）
+
+协程没有线程切换（抢占式）的开销，且不存在变量冲突，不需要线程锁，效率比多线程高
+
+### 生产者-消费者模型（协程版）
+
+```python
+def consumer():
+    r = ''
+    while True:
+        # 2. 通过 yield 回传 r 给 send 调用
+        # 4. 接收 send 的消息 n
+        n = yield r
+        if not n:
+            return
+        print(f'[CONSUMER] Consuming {n}...')
+        r = '200 OK'
+
+
+def produce(c):
+    # 1. 启动生成器
+    c.send(None)
+    n = 0
+    while n < 5:
+        n += 1
+        print(f'[PRODUCER] Producing {n}...')
+        # 3. 发送消息 n 返回给 yield
+        # 5. 接收 yield 的结果 r
+        r = c.send(n)
+        print(f'[PRODUCER] Consumer return: {r}')
+    # 6. 关闭生成器
+    c.close()
+
+
+# 消费者 - 生成器对象
+c = consumer()
+produce(c)
+```
+
+## asyncio
+
+Python 3.4 引入标准库，提供了完善的异步 IO 支持
+
+`asyncio`的编程模型是一个消息循环，首先需要从`asyncio`获取一个`EventLoop`的引用，然后把执行的协程扔到`EventLoop`中执行，从而实现异步 IO
+
+```python
+import asyncio
+
+
+# @aysncio.coroutine 把 generator 标记成 coroutine
+@asyncio.coroutine
+def wget(host):
+    print('wget %s...' % host)
+    connect = asyncio.open_connection(host, 80)
+    # yield from 调用 connect 生成器，并接受 connect 的调用结果
+    # 主线程并未等待 connect 调用，而是执行 EventLoop 中其他 coroutine
+    reader, writer = yield from connect
+    header = 'GET / HTTP/1.0\r\nHost: %s\r\n\r\n' % host
+    writer.write(header.encode('utf-8'))
+    yield from writer.drain()
+    while True:
+        line = yield from reader.readline()
+        if line == b'\r\n':
+            break
+        print('%s header > %s' % (host, line.decode('utf-8').rstrip()))
+    # Ignore the body, close the socket
+    writer.close()
+
+
+loop = asyncio.get_event_loop()
+tasks = [
+    wget(host) for host in ['www.sina.com.cn', 'www.sohu.com', 'www.163.com']
+]
+# 把 coroutine 扔到 EventLoop 中执行
+loop.run_until_complete(asyncio.wait(tasks))
+loop.close()
+```
+
+异步操作在`coroutine`中通过`yield from`完成
+
+## async/await
+
+Python 3.5 引入的针对`coroutine`的新语法
+
+- `async` 替换`@asyncio.coroutine`
+- `await` 替换`yield from`
+
+## aiohttp
+
+`asyncio`实现了`TCP`、`UDP`、`SSL`等协议
+`aiohttp`基于`asyncio`实现了`HTTP`框架
+
+**安装**
+
+```shell
+$ pip install aiohttp
+```
+
+**示例**
+
+```python
+import asyncio
+from aiohttp import web
+
+
+async def index(request):
+    await asyncio.sleep(1)
+    return web.Response(body=b'<h1>Index</h1>')
+
+
+async def hello(request):
+    await asyncio.sleep(1)
+    text = '<h1>hello, %s!</h1>' % request.match_info['name']
+    return web.Response(body=text.encode('utf-8'))
+
+
+async def init(loop):
+    app = web.Application(loop=loop)
+    app.router.add_route('GET', '/', index)
+    app.router.add_route('GET', '/hello/{name}', hello)
+    # 利用 asyncio 创建 TCP 服务
+    srv = await loop.create_server(app.make_handler(), '', 8000)
+    print('server started at http://localhost:8000...')
+    return srv
+
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(init(loop))
+loop.run_forever()
+```
+
 # todo:
 
 1. JIT 技术
@@ -4182,6 +4517,8 @@ HTML 是富文档模型，因此还有一系列 Tag 用来表示链接、图片�
 6. BaseManager 的实现，为什么只能在 if \_\_name\_\_ == '\_\_main\_\_': 下调用
 7. deque 的实现原理
 8. struct 的数据类型
-9. 生成器实现协程的原理
+9. 生成器实现协程的原理（yield 与 send 之间的消息传递）
 10. http 代理请求
 11. pop3 ssl 连接接收邮件
+12. yield、send、close、yield from 等 generator 的操作
+13. 子程序就是协程的一种特例？
