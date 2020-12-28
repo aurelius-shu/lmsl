@@ -20,6 +20,16 @@
     忍耐克制，自律
     读书学习，寂寞
 
+# todo
+
+- kafka
+- java
+- spring
+- scala
+- spark
+- gRPC
+- shell
+
 # structure
 
 - Computer Basic
