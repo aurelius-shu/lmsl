@@ -19,16 +19,16 @@
     0 <= matrix[i].length <= 100
 
 思路：
-按圈数一次计算每个边的运动轨迹
-向右：cycle, cycle -> cols-cycle
-向下：cycle+1 -> rows-cycle, cols-cycle-1
-向左：rows-cycle-1, cols-cycle-2 -> cycle-1
-向上：rows-cycle-2 -> cycle, cycle
+    按圈数一次计算每个边的运动轨迹
+    向右：cycle, cycle -> cols-cycle
+    向下：cycle+1 -> rows-cycle, cols-cycle-1
+    向左：rows-cycle-1, cols-cycle-2 -> cycle-1
+    向上：rows-cycle-2 -> cycle, cycle
 
 停止条件：
-1. 向右和向下时，圈数的两倍必须分别小于行数和列数
-2. 向右和向上时，圈数的两倍必须分别小于函数和列数减1
-3. 移动不能反向
+    1. 向右和向下时，圈数的两倍必须分别小于行数和列数
+    2. 向右和向上时，圈数的两倍必须分别小于函数和列数减1
+    3. 移动不能反向
 
 """
 
