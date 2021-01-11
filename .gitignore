@@ -116,3 +116,10 @@ dmypy.json
 
 extension
 .vscode/settings.json
+python/debug
+.vscode/launch.json
+
+
+# scala
+*$.class
+*.class
