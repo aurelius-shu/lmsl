@@ -138,6 +138,11 @@ yum makecache
 
 1. 修改静态 IP
 
+```shell
+nmcli c reload
+nmcli c up ens33
+```
+
 2. 修改主机名
 
 3. 修改主机与 IP 映射关系
