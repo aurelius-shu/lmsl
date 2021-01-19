@@ -18,7 +18,7 @@
 
 # MySQL 安装
 
-[官网地址](https://dev.mysql.com/downloads/mysql)
+[官方文档](https://dev.mysql.com/doc/refman/5.7/en/linux-installation-yum-repo.html)
 
 ## MySQL On Linux
 
@@ -239,7 +239,7 @@ GRANT ALL PRIVILEGES ON *.* TO 'aure'@'localhost' WITH GRANT OPTION;
 CREATE USER 'aure'@'%' IDENTIFIED BY 'some_pass';
 GRANT ALL PRIVILEGES ON *.* TO 'aure'@'%' WITH GRANT OPTION;
 -- V8.X
-create user 'aurelius'@'%' identified with mysql_native_password by 'some_pass';
+create user 'aurelius'@'%' identified with mysql_native_password by '999999';
 grant all on *.* to 'aurelius'@'%';
 ```
 
