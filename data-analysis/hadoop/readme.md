@@ -1,4 +1,92 @@
-# 内容简介
+# Hadoop 权威指南
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Hadoop 权威指南](#hadoop-权威指南)
+  - [一、内容简介](#一-内容简介)
+  - [二、初识 Hadoop](#二-初识-hadoop)
+  - [三、关于 MapReduce](#三-关于-mapreduce)
+  - [1、Hadoop 数据分析示例](#1-hadoop-数据分析示例)
+    - [1. map 和 reduce](#1-map-和-reduce)
+      - [map 阶段](#map-阶段)
+      - [reduce 阶段](#reduce-阶段)
+    - [2. Java MapReduce](#2-java-mapreduce)
+      - [map 函数](#map-函数)
+      - [reduce 函数](#reduce-函数)
+      - [MapReduce Job](#mapreduce-job)
+      - [运行 MapReduce](#运行-mapreduce)
+  - [2、横向扩展](#2-横向扩展)
+    - [1. 数据流](#1-数据流)
+      - [MapReduce Job](#mapreduce-job-1)
+      - [map task](#map-task)
+      - [reduce task](#reduce-task)
+    - [2. combiner 函数](#2-combiner-函数)
+    - [3. 分布式作业](#3-分布式作业)
+  - [3、Hadoop Streaming](#3-hadoop-streaming)
+    - [1. Ruby 版本](#1-ruby-版本)
+    - [2. Python 版本](#2-python-版本)
+- [HDFS](#hdfs)
+  - [1. HDFS 的设计](#1-hdfs-的设计)
+  - [2. HDFS 的概念](#2-hdfs-的概念)
+    - [1. 数据块](#1-数据块)
+    - [2. namenode 和 datanode](#2-namenode-和-datanode)
+    - [3. 块缓存](#3-块缓存)
+    - [4. 联邦 HDFS](#4-联邦-hdfs)
+    - [5. HDFS 的高可用性](#5-hdfs-的高可用性)
+  - [3. 命令行接口](#3-命令行接口)
+    - [1. 文件系统的基本操作](#1-文件系统的基本操作)
+  - [4. Hadoop 文件系统](#4-hadoop-文件系统)
+    - [1. 接口](#1-接口)
+  - [5. Java 接口](#5-java-接口)
+    - [1. 从 Hadoop URL 读取数据](#1-从-hadoop-url-读取数据)
+    - [2. FileSystem API 读取数据](#2-filesystem-api-读取数据)
+    - [3. 写入数据](#3-写入数据)
+    - [4. 目录](#4-目录)
+    - [5. 查询文件系统](#5-查询文件系统)
+      - [1. 文件元数据(FileStatus)](#1-文件元数据filestatus)
+      - [2. 列出文件(listStatus)](#2-列出文件liststatus)
+      - [3. 文件模式"通配"](#3-文件模式通配)
+      - [4. PathFilter 对象](#4-pathfilter-对象)
+    - [6. 删除数据](#6-删除数据)
+  - [6. 数据流](#6-数据流)
+    - [1. 剖析文件读取](#1-剖析文件读取)
+    - [2. 剖析文件写入](#2-剖析文件写入)
+    - [3. 一致模型(coherency model)](#3-一致模型coherency-model)
+  - [7. distcp 并行复制](#7-distcp-并行复制)
+- [YARN](#yarn)
+  - [1. 剖析 YARN 应用运行机制](#1-剖析-yarn-应用运行机制)
+    - [1. 资源请求](#1-资源请求)
+    - [2. 应用生命期](#2-应用生命期)
+    - [3. 构建 YARN 应用](#3-构建-yarn-应用)
+  - [2. YARN 与 MR 1 相比](#2-yarn-与-mr-1-相比)
+  - [3. YARN 中的调度](#3-yarn-中的调度)
+    - [1. 调度选项](#1-调度选项)
+    - [2. Capacity Scheduler 配置](#2-capacity-scheduler-配置)
+    - [3. Fair Scheduler 配置](#3-fair-scheduler-配置)
+    - [4. 延迟调度](#4-延迟调度)
+    - [5. 主导资源公平性](#5-主导资源公平性)
+  - [4. 延伸](#4-延伸)
+- [Hadoop 的 I/O 操作](#hadoop-的-io-操作)
+  - [1. 数据完整性](#1-数据完整性)
+    - [1. HDFS 的数据完整性](#1-hdfs-的数据完整性)
+    - [2. LocalFileSystem](#2-localfilesystem)
+  - [2. 压缩](#2-压缩)
+  - [3. 序列化](#3-序列化)
+  - [4. 基于文件的数据结构](#4-基于文件的数据结构)
+- [MapReduce 应用开发](#mapreduce-应用开发)
+  - [1. 用于配置的 API](#1-用于配置的-api)
+  - [2. 配置开发环境](#2-配置开发环境)
+  - [3. 用 MRUnit 写单元测试](#3-用-mrunit-写单元测试)
+  - [4. 本地运行测试数据](#4-本地运行测试数据)
+  - [5. 在集群上运行](#5-在集群上运行)
+  - [6. 作业调优](#6-作业调优)
+  - [7. MapReduce 工作流](#7-mapreduce-工作流)
+
+<!-- /code_chunk_output -->
+
+## 一、内容简介
 
 1. Hadoop 基础组件
 
@@ -11,14 +99,14 @@
 2. MapReduce 深度剖析
 
    1. MapReduce 应用开发
-   2. 实现 MapReduce
+   2. MapReduce 工作机制
    3. MapReduce 编程模型和使用的数据格式
    4. MapReduce 高级主题（排序和数据连接）
 
-3. Hadoop 管理
+3. Hadoop 操作
 
-   1. 设置和维护 HDFS
-   2. 设置和维护 YARN
+   1. 构建集群
+   2. 管理集群
 
 4. Hadoop 相关项目
 
@@ -35,7 +123,31 @@
 
 5. 应用实例
 
-# MapReduce
+   1. Cerner 的可聚合数据
+   2. 生命数据科学
+   3. Cascading
+
+## 二、初识 Hadoop
+
+1. 数据量很大
+2. 存储 -> 硬件故障 -> replication
+   分析 -> 不同来源 -> MapReduce
+3. 针对整个数据集查询
+4. 不仅仅是批处理（MR）
+   在线读写：HBase
+   资源管理：YARN
+   交互式 SQL：Hive
+   迭代处理：Spark
+   流处理：Storm，Spark Streaming 或 Samza
+   搜索：Solr
+5. 优势
+   1. RDBMS：磁盘的寻址速度（磁盘带宽）远远不如传输速率（磁头移速）
+   2. 网络计算：网络带宽是数据中心最珍贵的资源，每个任务间彼此独立，顺序无关紧要
+   3. 志愿计算：内部高速网络连接的数据中心
+6. 发展史
+7. 本书内容
+
+## 三、关于 MapReduce
 
 ## 1、Hadoop 数据分析示例
 
