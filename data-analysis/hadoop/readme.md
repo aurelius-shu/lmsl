@@ -1,14 +1,13 @@
-# Hadoop 权威指南
+<!-- # Hadoop 权威指南 -->
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
 
-- [Hadoop 权威指南](#hadoop-权威指南)
-  - [一、内容简介](#一-内容简介)
-  - [二、初识 Hadoop](#二-初识-hadoop)
-  - [三、关于 MapReduce](#三-关于-mapreduce)
-  - [1、Hadoop 数据分析示例](#1-hadoop-数据分析示例)
+- [一、内容简介](#一-内容简介)
+- [二、初识 Hadoop](#二-初识-hadoop)
+- [三、关于 MapReduce](#三-关于-mapreduce)
+  - [Hadoop 数据分析示例](#hadoop-数据分析示例)
     - [1. map 和 reduce](#1-map-和-reduce)
       - [map 阶段](#map-阶段)
       - [reduce 阶段](#reduce-阶段)
@@ -17,29 +16,29 @@
       - [reduce 函数](#reduce-函数)
       - [MapReduce Job](#mapreduce-job)
       - [运行 MapReduce](#运行-mapreduce)
-  - [2、横向扩展](#2-横向扩展)
+  - [横向扩展](#横向扩展)
     - [1. 数据流](#1-数据流)
       - [MapReduce Job](#mapreduce-job-1)
       - [map task](#map-task)
       - [reduce task](#reduce-task)
     - [2. combiner 函数](#2-combiner-函数)
     - [3. 分布式作业](#3-分布式作业)
-  - [3、Hadoop Streaming](#3-hadoop-streaming)
+  - [Hadoop Streaming](#hadoop-streaming)
     - [1. Ruby 版本](#1-ruby-版本)
     - [2. Python 版本](#2-python-版本)
-- [HDFS](#hdfs)
-  - [1. HDFS 的设计](#1-hdfs-的设计)
-  - [2. HDFS 的概念](#2-hdfs-的概念)
+- [四、HDFS](#四-hdfs)
+  - [HDFS 的设计](#hdfs-的设计)
+  - [HDFS 的概念](#hdfs-的概念)
     - [1. 数据块](#1-数据块)
     - [2. namenode 和 datanode](#2-namenode-和-datanode)
     - [3. 块缓存](#3-块缓存)
     - [4. 联邦 HDFS](#4-联邦-hdfs)
     - [5. HDFS 的高可用性](#5-hdfs-的高可用性)
-  - [3. 命令行接口](#3-命令行接口)
+  - [命令行接口](#命令行接口)
     - [1. 文件系统的基本操作](#1-文件系统的基本操作)
-  - [4. Hadoop 文件系统](#4-hadoop-文件系统)
+  - [Hadoop 文件系统](#hadoop-文件系统)
     - [1. 接口](#1-接口)
-  - [5. Java 接口](#5-java-接口)
+  - [Java 接口](#java-接口)
     - [1. 从 Hadoop URL 读取数据](#1-从-hadoop-url-读取数据)
     - [2. FileSystem API 读取数据](#2-filesystem-api-读取数据)
     - [3. 写入数据](#3-写入数据)
@@ -50,43 +49,43 @@
       - [3. 文件模式"通配"](#3-文件模式通配)
       - [4. PathFilter 对象](#4-pathfilter-对象)
     - [6. 删除数据](#6-删除数据)
-  - [6. 数据流](#6-数据流)
+  - [数据流](#数据流)
     - [1. 剖析文件读取](#1-剖析文件读取)
     - [2. 剖析文件写入](#2-剖析文件写入)
     - [3. 一致模型(coherency model)](#3-一致模型coherency-model)
-  - [7. distcp 并行复制](#7-distcp-并行复制)
-- [YARN](#yarn)
-  - [1. 剖析 YARN 应用运行机制](#1-剖析-yarn-应用运行机制)
+  - [distcp 并行复制](#distcp-并行复制)
+- [五、YARN](#五-yarn)
+  - [剖析 YARN 应用运行机制](#剖析-yarn-应用运行机制)
     - [1. 资源请求](#1-资源请求)
     - [2. 应用生命期](#2-应用生命期)
     - [3. 构建 YARN 应用](#3-构建-yarn-应用)
-  - [2. YARN 与 MR 1 相比](#2-yarn-与-mr-1-相比)
-  - [3. YARN 中的调度](#3-yarn-中的调度)
+  - [YARN 与 MR 1 相比](#yarn-与-mr-1-相比)
+  - [YARN 中的调度](#yarn-中的调度)
     - [1. 调度选项](#1-调度选项)
     - [2. Capacity Scheduler 配置](#2-capacity-scheduler-配置)
     - [3. Fair Scheduler 配置](#3-fair-scheduler-配置)
     - [4. 延迟调度](#4-延迟调度)
     - [5. 主导资源公平性](#5-主导资源公平性)
-  - [4. 延伸](#4-延伸)
-- [Hadoop 的 I/O 操作](#hadoop-的-io-操作)
-  - [1. 数据完整性](#1-数据完整性)
+  - [延伸](#延伸)
+- [六、Hadoop 的 I/O 操作](#六-hadoop-的-io-操作)
+  - [数据完整性](#数据完整性)
     - [1. HDFS 的数据完整性](#1-hdfs-的数据完整性)
     - [2. LocalFileSystem](#2-localfilesystem)
-  - [2. 压缩](#2-压缩)
-  - [3. 序列化](#3-序列化)
-  - [4. 基于文件的数据结构](#4-基于文件的数据结构)
-- [MapReduce 应用开发](#mapreduce-应用开发)
-  - [1. 用于配置的 API](#1-用于配置的-api)
-  - [2. 配置开发环境](#2-配置开发环境)
-  - [3. 用 MRUnit 写单元测试](#3-用-mrunit-写单元测试)
-  - [4. 本地运行测试数据](#4-本地运行测试数据)
-  - [5. 在集群上运行](#5-在集群上运行)
-  - [6. 作业调优](#6-作业调优)
-  - [7. MapReduce 工作流](#7-mapreduce-工作流)
+  - [压缩](#压缩)
+  - [序列化](#序列化)
+  - [基于文件的数据结构](#基于文件的数据结构)
+- [七、MapReduce 应用开发](#七-mapreduce-应用开发)
+  - [用于配置的 API](#用于配置的-api)
+  - [配置开发环境](#配置开发环境)
+  - [用 MRUnit 写单元测试](#用-mrunit-写单元测试)
+  - [本地运行测试数据](#本地运行测试数据)
+  - [在集群上运行](#在集群上运行)
+  - [作业调优](#作业调优)
+  - [MapReduce 工作流](#mapreduce-工作流)
 
 <!-- /code_chunk_output -->
 
-## 一、内容简介
+# 一、内容简介
 
 1. Hadoop 基础组件
 
@@ -127,7 +126,7 @@
    2. 生命数据科学
    3. Cascading
 
-## 二、初识 Hadoop
+# 二、初识 Hadoop
 
 1. 数据量很大
 2. 存储 -> 硬件故障 -> replication
@@ -147,9 +146,9 @@
 6. 发展史
 7. 本书内容
 
-## 三、关于 MapReduce
+# 三、关于 MapReduce
 
-## 1、Hadoop 数据分析示例
+## Hadoop 数据分析示例
 
 ​ 获取全球气温每年的最高记录，原始数据如下：
 
@@ -299,7 +298,7 @@ $ export HADOOP_CLASSPATH=hadoop-examples.jar
 $ MaxTemperature input/ncdc/sample.txt output
 ```
 
-## 2、横向扩展
+## 横向扩展
 
 ​ 把数据存储在分布式文件系统（HDFS），使用 Hadoop 资源管理系统 YARN，将 MapReduce 计算转移到存储有部分数据的各台机器上。
 
@@ -387,7 +386,7 @@ public class MaxTemperatureWithCombiner{
 
 ​ 详见第六章 MapReduce 应用开发
 
-## 3、Hadoop Streaming
+## Hadoop Streaming
 
 ### 1. Ruby 版本
 
@@ -510,11 +509,11 @@ ch02-mr-intro/src/main/python/max_temperature_map.py | \
 sort | ch02-mr-intro/src/main/python/max_temperature_reduce.py
 ```
 
-# HDFS
+# 四、HDFS
 
 ​ 当数据集的大小超过一台独立物理机的存储能力时，就需要对它分区存储到若干台单独的计算机上。管理网络中跨计算机存储的文件系统称为分布式文件系统（distributed filesystem）。
 
-## 1. HDFS 的设计
+## HDFS 的设计
 
 - 超大文件：指具有几百 MB、几百 GB、几百 TB 大小的文件。
 - 流式数据访问：一次写入、多次读取是最高效的访问模式。数据集通常由数据源生成或复制而来，接着长时间在此数据集进行各种分析。读取整个数据集的时间延迟比读取第一条记录的时间延迟更重要。
@@ -523,7 +522,7 @@ sort | ch02-mr-intro/src/main/python/max_temperature_reduce.py
 - 大量的小文件：文件系统的元数据由 namenode 存储在内存中，而每个文件、目录和数据块的存储信息大约 150 字节，当文件数过大，元数据大小会超出 namenode 内存容量。
 - 多用户写入，任意修改文件：HDFS 中的文件只支持单个写入者，写操作只能是在文件末尾“添加”数据。不支持多个写入者，不支持任意位置修改。
 
-## 2. HDFS 的概念
+## HDFS 的概念
 
 ### 1. 数据块
 
@@ -602,7 +601,7 @@ sort | ch02-mr-intro/src/main/python/max_temperature_reduce.py
 
 ​ 客户端的故障转移通过客户端类库实现透明处理。通常通过客户端配置文件实现控制。HDFS URI 使用一个逻辑主机名映射一对 namenode 地址，客户端类库会访问每个 namenode 地址。
 
-## 3. 命令行接口
+## 命令行接口
 
 ​ 单机模式的两个配置：
 
@@ -633,7 +632,7 @@ $ hadoop fs -ls .
 
 ​ 默认情况下 Hadoop 运行的安全措施处于停用模式，客户端身份是没有经过认证的，启用权限控制参见 dfs.permissions.enabled 属性。namenode 进程是一个超级用户（super-user），系统不会执行任何权限检查。
 
-## 4. Hadoop 文件系统
+## Hadoop 文件系统
 
 ​ Hadoop 文件系统是一个抽象概念，HDFS 只是其中一个实现。org.apache.headoop.fs.FileSystem 定义了其客户端接口，以下是其几个具体实现：
 
@@ -661,7 +660,7 @@ $ hadoop fs -ls file:///
 - NFS，使用 NFSv3 网关将 HDFS 挂载为本地客户端的文件系统，然后直接使用 Unix 程序（ls/cat 等）与该文件系统交互。
 - FUSE，用户控件文件系统（FUSE，Filesystem in Userspace）。允许将用户控件实现的文件系统作为 Unix 文件系统进行集成，使用 Fuse-DFS 功能模块，将 HDFS（或其他 Hadoop 文件系统）作为一个标准的本地文件系统进行挂载。Fuse-DFS 使用了 libhdfs 访问 HDFS 的接口，在写操作的健壮性不如 NFS 的挂载方案。
 
-## 5. Java 接口
+## Java 接口
 
 ### 1. 从 Hadoop URL 读取数据
 
@@ -920,7 +919,7 @@ fs.globStatus(new Path("/2007/*/*"), new RegexExcludePathFilter("^.*/2007/12/31$
 public boolean delete(Path f, boolean recursive) throws IOException
 ```
 
-## 6. 数据流
+## 数据流
 
 ### 1. 剖析文件读取
 
@@ -987,7 +986,7 @@ assertThat(localFile.length(), is((long)"content".length()));
 
 ​ 如果不调用 hflush() 或 hsync() 方法，就可能在客户端或系统发生故障时丢失数据。
 
-## 7. distcp 并行复制
+## distcp 并行复制
 
 ```bash
 # 将文件复制到另一个文件中
@@ -1008,13 +1007,13 @@ $ hadoop distcp webhdfs://namenode1:50070/foo webhdfs://namenode2:50070/foo
 
 ​ distcp 与 insert overwrite(hive) 在应用中的不同在于，insert overwrite 会重组元数据，而 distcp 只是单纯拷贝。
 
-# YARN
+# 五、YARN
 
 ​ YARN 提供了请求和使用集群资源的 API。一些分布式计算框架（MapReduce，Spark 等）作为 YARN 应用运行在集群计算层（YARN）和集群存储层（HDFS 和 HBase）上。还有更高一层的应用，如 Pig，Hive，Crunch 等运行在 MapReduce、Spark 或 Tez 之上。
 
 ![yarn](.\images\04\yarn.jpg)
 
-## 1. 剖析 YARN 应用运行机制
+## 剖析 YARN 应用运行机制
 
 ![yarn-application](.\images\04\yarn-application.jpg)
 
@@ -1049,7 +1048,7 @@ $ hadoop distcp webhdfs://namenode1:50070/foo webhdfs://namenode2:50070/foo
 
 ​ YARN 自身还有 distributed shell 应用，演示了如何使用 YARN 客户端 API 处理客户端或 application master 与 YARN 守护进程间的通信。
 
-## 2. YARN 与 MR 1 相比
+## YARN 与 MR 1 相比
 
 ![YARN-MR1](.\images\04\YARN-MR1.jpg)
 
@@ -1071,7 +1070,7 @@ $ hadoop distcp webhdfs://namenode1:50070/foo webhdfs://namenode2:50070/foo
 
   ​ YARN 最大的优点是向 MR 以为的其他类型分布式应用开放了 Hadoop。
 
-## 3. YARN 中的调度
+## YARN 中的调度
 
 ​ 通常资源有限，在一个繁忙的集群上，一个应用经常需要等待才能得到请求的资源，YARN 调度器提供了分配资源的策略调度。
 
@@ -1141,15 +1140,15 @@ $ hadoop distcp webhdfs://namenode1:50070/foo webhdfs://namenode2:50070/foo
 
 ​ 默认情况不使用 DRF，一次只需要考虑内存，不考虑 CPU。
 
-## 4. 延伸
+## 延伸
 
 ​ 《Apache Hadoop YARN》 - Arun C. Murthy （http://yarn-book.com/）
 
-# Hadoop 的 I/O 操作
+# 六、Hadoop 的 I/O 操作
 
 ​ Hadoop 自带一套原子操作用于数据 I/O 操作。
 
-## 1. 数据完整性
+## 数据完整性
 
 ​ 检测数据是否损坏的常用措施是在数据第一次引入系统时计算校验和（checksum），并在数据通过一个不可靠通道进行传输时再次计算校验和。
 
@@ -1165,26 +1164,26 @@ $ hadoop distcp webhdfs://namenode1:50070/foo webhdfs://namenode2:50070/foo
 
 ### 2. LocalFileSystem
 
-## 2. 压缩
+## 压缩
 
-## 3. 序列化
+## 序列化
 
-## 4. 基于文件的数据结构
+## 基于文件的数据结构
 
-# MapReduce 应用开发
+# 七、MapReduce 应用开发
 
 ​ MapReduce 编程遵循一个特定流程。首先编写 map 函数和 reduce 函数，并使用单元测试保证函数的运行符合预期。然后写一个程序运行作业，从本地 IDE 用一个小的数据集运行它。可以用本地 IDE 调试器调试。
 
-## 1. 用于配置的 API
+## 用于配置的 API
 
-## 2. 配置开发环境
+## 配置开发环境
 
-## 3. 用 MRUnit 写单元测试
+## 用 MRUnit 写单元测试
 
-## 4. 本地运行测试数据
+## 本地运行测试数据
 
-## 5. 在集群上运行
+## 在集群上运行
 
-## 6. 作业调优
+## 作业调优
 
-## 7. MapReduce 工作流
+## MapReduce 工作流
