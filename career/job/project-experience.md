@@ -34,6 +34,20 @@
    3. 通过 DataX 打通数仓与各应用端的同步通道，将应用数据导入各应用系统
    4. 数据字典
 
+1. 云服务平台（云资讯、云评价、云管理中兴） 
+   （Java）Spring Boot、MySQL、Redis、Vue.js
+2. 标签系统
+   （Python、Java）Django、gRPC、Hadoop、Hive、Azkaban、DataX、MySQL、Redis、Vue.js
+3. 数据分析平台（客户画像、用户画像、数据看板、特性分析、产品质量、客户成功运营）
+   （Java）Hadoop、Spark、Hive、Azkaban、DataX、Spring Boot、MySQL、Redis、Vue.js、Echart
+4. 数据迁移代理服务
+   （Python）SQLAlchemy、SQLite、SQL Server、Oracle
+5. 星空 OSS 数据集成服务（中间件）
+   （Java、.Net）Kafka、Flume、AWS S3、HuaWei OBS、Spring Boot、MySQL、SQL Server
+6. CDH+数栖+DataOne 数据平台搭建
+   （Java）Hadoop、Spark、Kafka、Zookeeper、Hive、Hue、数栖、DataOne
+
+
 7. 以现状下各类不便为引
 
 8. 星空公有云 -> 苍穹数据平台
