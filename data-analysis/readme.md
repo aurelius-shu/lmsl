@@ -1,0 +1,11 @@
+1. java
+2. mysql
+3. redis
+4. ActiveMQ
+5. kafka
+6. hadoop
+7. hive
+8. spark
+9. flink
+10. azkaban
+11. datax
