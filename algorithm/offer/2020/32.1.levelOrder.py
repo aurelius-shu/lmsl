@@ -17,7 +17,7 @@
     [3,9,20,15,7]
 
 思路：
-挨层处理，队列记录每一层，
+    挨层处理，队列记录每一层，
 """
 
 
@@ -35,8 +35,7 @@ class Solution:
         queue.append(root)
         while queue:
             cur = queue.pop(0)
-            if cur:
-                queue.append(cur.left)
-                queue.append(cur.right)
-                res.append(cur.val)
+            queue.append(cur.left)
+            queue.append(cur.right)
+            res.append(cur.val)
         return res

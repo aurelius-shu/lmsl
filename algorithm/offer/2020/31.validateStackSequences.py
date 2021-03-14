@@ -25,6 +25,11 @@
 
 思路：
     使用一个辅助栈模拟入栈和出栈过程，如果最终全部弹出成功，则popped是该压入栈序列的弹出序列
+
+    先决条件：入序或出序不为空
+    出栈：stack 和 出序不为空 且 stack[-1] == popped[0]
+    入栈：pushed 不为空
+    else：break
 """
 
 
@@ -39,9 +44,5 @@ class Solution:
                 stack.append(pushed.pop(0))
             else:
                 break
-
-        while stack and popped and stack[-1] == popped[0]:
-            stack.pop()
-            popped.pop(0)
 
         return not stack and not popped

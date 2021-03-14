@@ -5,6 +5,7 @@
     实现函数double Power(double base, int exponent)，求base的exponent次方。不得使用库函数，同时不需要考虑大数问题。
 
 思路：
+    递归，二分法
     用一个字段记录已经计算出结果的<表达式, 值>
 """
 
