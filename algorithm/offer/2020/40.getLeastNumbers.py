@@ -47,6 +47,13 @@ class Solution:
 
 if __name__ == "__main__":
     l = [5, 4, 1, 3, 2, 4]
-    s = Solution()
-    res = s.getLeastNumbers(l, 3)
+    # s = Solution()
+    # res = s.getLeastNumbers(l, 3)
+    # print(res)
+    res = []
+    for i in l:
+        heapq.heappush(res, i)
     print(res)
+    for i in range(len(res)):
+        print(heapq.heappop(res))
+        print(res)
