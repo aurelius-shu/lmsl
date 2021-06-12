@@ -123,3 +123,6 @@ python/debug
 # scala
 *$.class
 *.class
+
+
+.DS_Store
