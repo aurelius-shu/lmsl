@@ -134,43 +134,41 @@ PCG | 深圳 | 技术 | 2020年10月27日
 # shopee
 
 1. C++ 内存机制 [内存空间分布](https://www.cnblogs.com/sunziying/p/6510030.html)
-
 2. RALL 机制 [RALL 机制详解](https://blog.csdn.net/ac_hell/article/details/69213969)
-
 3. 虚拟内存 [内存管理](https://blog.csdn.net/m0_37271739/article/details/78758310)
-
 4. 进程与线程的区别 [进程与线程的概念](http://www.ruanyifeng.com/blog/2013/04/processes_and_threads.html)
-
 5. 进程间通信方式，各自优缺点 [八大 IPC](https://www.cnblogs.com/wust221/p/5414839.html)
-
 6. TCP UDP 区别，三次握手和四次挥手 [TCP UDP 三次握手四次挥手](https://blog.csdn.net/Tomasyb/article/details/73459736)
-
 7. TCP 可靠性如何保障 [TCP 可靠性如何保障](https://blog.csdn.net/shennongzhaizhu/article/details/52082106)
-
 8. HTTP get 和 post 区别 [GET POST 区别](https://www.cnblogs.com/longm/p/7205318.html?utm_source%3Ditdadao%26utm_medium%3Dreferral)
-
 9. cookie 和 session 区别 [cookie 和 session](https://www.cnblogs.com/shiyangxt/articles/1305506.html)
-
 10. web 攻击有哪些方式 [攻击技术](https://github.com/CyC2018/CS-Notes/blob/master/notes/%E6%94%BB%E5%87%BB%E6%8A%80%E6%9C%AF.md)
-
 11. http 返回状态码含义 [http 返回状态码含义](https://blog.csdn.net/q1056843325/article/details/53147180)
-
 12. mysql innodb 具有哪些引擎特点 [innodb](https://github.com/CyC2018/CS-Notes/blob/master/notes/MySQL.md#innodb)
-
 13. 索引底层结构
-
 14. 如何分析慢查询日志
-
 15. 如何优化
-
 16. 选择题：选联合索引是否生效
-
 17. Redis 为什么适合做缓存
-
 18. 不同持久化方式的区别和优缺点
-
 19. Redis 有哪些对象，底层实现是什么
-
 20. 列表的底层实现是什么
-
 21. 在线编程：递归非递归翻转二叉树
+
+# 抖音 2021-03-14
+
+```
+高级后台开发 — 抖音/火山职位描述
+1、为头条业务发展提供研发框架、监控、通用服务；
+2、设计合理的业务和技术架构方案，并推进技术规范的落地；
+3、研发基础服务组件，解决共性需求，减少重复开发；
+4、新技术研究和应用，并推动适合的技术应用于生产。
+职位要求
+1、本科及以上学历，计算机、通信等相关专业；
+2、熟练掌握Linux环境下的C/C++/Go/Python/Shell/PHP等1至2种以上语言；
+3、了解微服务架构的技术挑战，并有对应的解决方案；
+4、扎实的技术基础，熟悉性能、可用性、伸缩性、扩展性、安全性、运维监控、集成发布等；
+5、熟悉业务架构设计理论，熟悉行业常见的架构方案；
+6、积极乐观，责任心强，工作认真细致，具备良好的服务意识，具有良好的团队沟通与协作能力；
+7、热爱编程，有较强的学习能力和抽象能力，有强烈的求知欲、好奇心和进取心 ，能及时关注和学习业界最新技术。
+```

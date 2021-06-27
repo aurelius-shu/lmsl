@@ -23,6 +23,7 @@
   - [11. 默认备份压缩](#11-默认备份压缩)
   - [12. 正在还原](#12-正在还原)
   - [13. 清理备份文件](#13-清理备份文件)
+  - [14. sa 登录失败](#14-sa-登录失败)
 
 <!-- /code_chunk_output -->
 
@@ -240,3 +241,10 @@ DECLARE @OLDDATE DATETIME
 SELECT @OLDDATE=GETDATE()-3
 EXECUTE master.dbo.xp_delete_file 0 ,N'E:\DB\bak\',N'bak',@OLDDATE,0;
 ```
+
+## 14. sa 登录失败
+
+1. 启用并授权 sa 账号
+2. 启用 Windows 和 账号登录混合模式
+3. SQL Server 配置管理工具中的 所有 Named Pipes 的 TCP/IP 协议启用起来
+4. 关闭 sa 账号的"强制密码策略"选项
