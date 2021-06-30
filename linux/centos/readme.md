@@ -148,3 +148,19 @@ nmcli c up ens33
 3. 修改主机与 IP 映射关系
 
 4. 修改 root 密码
+
+# 端口
+
+```shell
+# 查看端口
+sudo firewall-cmd --query-port=6379/tcp
+
+# 永久开放端口
+sudo firewall-cmd --add-port=6379/tcp --permanent
+
+# 重载
+sudo firewall-cmd --reload
+
+# 关闭端口
+sudo firewall-cmd --remove-port=6379/tcp
+```
