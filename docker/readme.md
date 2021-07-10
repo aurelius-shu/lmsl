@@ -57,3 +57,48 @@ docker  run \
     -v /home/aurelius/software/nacos/init.d/custom.properties:/home/nacos/init.d/custom.properties \
     nacos/nacos-server
 ```
+
+### 容器化部署 datahub 步骤
+
+**每次更新部署，需先将容器删除，重新打镜像，用新的镜像启动新的容器**
+
+1. 删除容器
+
+```shell
+# 查看容器
+docker ps
+
+# 停止容器
+docker stop CONTAINER ID(容器对应标识)
+
+#删除容器
+docker rm CONTAINER ID(容器对应标识)
+```
+
+2. 删除镜像
+
+```shell
+# 查看镜像
+docker images
+
+# 删除镜像
+docker rmi IMAGE ID(镜像对应标识)
+```
+
+3. 制作镜像
+
+```shell
+# 进入工程目录(首先将需要更新的文件上传到响应目录，替换现有文件)
+# /cdp/datahub-ci-core
+# /cdp/datahub-server-core
+# 在工程根目录下(与 Dockerfile 同级目录)，执行命令：
+docker build -t datahub-server-core:1.0.0 .
+docker build -t datahub-ci-core:1.0.0 .
+```
+
+4. 启动容器
+
+```shell
+docker run --privileged=true -idt -p 5000:80 -v /datahub_logs/server:/app/Log --name datahub-server-core datahub-server-core:1.0.0
+docker run --privileged=true -idt -p 5001:80 -v /datahub_logs/ci:/app/Log --name datahub-ci-core datahub-ci-core:1.0.0
+```
