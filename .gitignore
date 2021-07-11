@@ -126,3 +126,6 @@ python/debug
 
 
 .DS_Store
+java/api/
+java/docs/
+~$*.xlsx
