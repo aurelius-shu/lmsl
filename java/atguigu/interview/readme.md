@@ -37,6 +37,46 @@
   - [10. 单例模式多线程下存在安全问题](#10-单例模式多线程下存在安全问题)
   - [11. volatile 单例模式](#11-volatile-单例模式)
   - [12. CAS](#12-cas)
+  - [13. CAS 原理](#13-cas-原理)
+  - [14. CAS 原理](#14-cas-原理)
+  - [15. CAS 缺点](#15-cas-缺点)
+  - [16. ABA 问题](#16-aba-问题)
+  - [17. AtomicReference 原子引用](#17-atomicreference-原子引用)
+  - [18. AtomicStampedReference 版本号原子引用](#18-atomicstampedreference-版本号原子引用)
+  - [19. 解决 ABA 问题](#19-解决-aba-问题)
+  - [20. ArrayList 的 ConcurrentModificationException](#20-arraylist-的-concurrentmodificationexception)
+  - [21. CopyOnWriteArrayList 写时复制](#21-copyonwritearraylist-写时复制)
+  - [22. HashSet 的 ConcurrentModificationException](#22-hashset-的-concurrentmodificationexception)
+  - [23. HashMap 的 ConcurrentModificationException](#23-hashmap-的-concurrentmodificationexception)
+  - [24. TransferValue](#24-transfervalue)
+  - [25. 公平锁与非公平锁](#25-公平锁与非公平锁)
+  - [26. 可重入锁(递归锁)](#26-可重入锁递归锁)
+  - [27. 可重复锁(递归锁) 验证](#27-可重复锁递归锁-验证)
+  - [28. 自旋锁](#28-自旋锁)
+  - [29. 自旋锁 验证](#29-自旋锁-验证)
+  - [30. 读写锁](#30-读写锁)
+  - [31. 读写锁 验证](#31-读写锁-验证)
+  - [32. CountDownLatch](#32-countdownlatch)
+  - [33. CyclicBarrier](#33-cyclicbarrier)
+  - [34. Semaphore](#34-semaphore)
+  - [35. 阻塞队列](#35-阻塞队列)
+  - [36. 阻塞队列 7 个实现](#36-阻塞队列-7-个实现)
+  - [37. 阻塞队列操作异常组](#37-阻塞队列操作异常组)
+  - [38. 阻塞队列操作返回布尔值组](#38-阻塞队列操作返回布尔值组)
+  - [39. 阻塞队列操作阻塞和超时组](#39-阻塞队列操作阻塞和超时组)
+  - [40. 阻塞队列 SynchronousQueue](#40-阻塞队列-synchronousqueue)
+  - [41. 线程通信](#41-线程通信)
+  - [42. synchronized 和 Lock 的区别](#42-synchronized-和-lock-的区别)
+  - [43. Condition](#43-condition)
+  - [44. 线程通信](#44-线程通信)
+  - [45. Callable](#45-callable)
+  - [46. 线程池](#46-线程池)
+- [Java 第三季](#java-第三季)
+  - [Java 基础](#java-基础)
+  - [JUC](#juc)
+  - [Spring](#spring)
+  - [Redis](#redis)
+  - [补充说明](#补充说明)
 
 <!-- /code_chunk_output -->
 
@@ -226,9 +266,9 @@ public static void main(String[] args) {
 | 类型      | 说明                                                                                                            |
 | --------- | --------------------------------------------------------------------------------------------------------------- |
 | singleton | 默认类型，当 IOC 容器一创建就会创建 bean 的实例，而且是单例的，每次得到的都是同一个实例                         |
-| prototype | 原型的，当 IOC 容器创建是不会创建 bean 实例，每次调用 getBean 方法时实例化该 bean，而且每次得到的都是不同的实例 |
+| prototype | 原型的，当 IOC 容器创建时不会创建 bean 实例，每次调用 getBean 方法时实例化该 bean，而且每次得到的都是不同的实例 |
 | request   | 每次请求实例化一个 bean，适用于 WebApplicationContext 环境                                                      |
-| session   | 在依次会话中共享一个 bean，适用于 WebApplicationContext 环境                                                    |
+| session   | 在一次会话中共享一个 bean，适用于 WebApplicationContext 环境                                                    |
 
 ## 8. Spring 支持的常用数据库事务传播属性和事务隔离级别
 
@@ -431,4 +471,161 @@ public void add();
 
 ## 12. CAS
 
+CAS -> UnSafe -> CAS 底层思想 -> ABA -> 原子引用更新 -> 如何规避 ABA 问题
+
+[CAS](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/2_%E8%B0%88%E8%B0%88CAS/5_CAS%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86)
+
+## 13. CAS 原理
+
+## 14. CAS 原理
+
+## 15. CAS 缺点
+
+- 循环时间长，CPU 开销大
+- 只能保证一个共享变量的原子操作
+- 引发 ABA 问题
+
+## 16. ABA 问题
+
+[ABA](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/3_%E8%B0%88%E8%B0%88%E5%8E%9F%E5%AD%90%E7%B1%BB%E7%9A%84ABA%E9%97%AE%E9%A2%98/6_%E5%8E%9F%E5%AD%90%E7%B1%BBAtomicInteger%E7%9A%84ABA%E9%97%AE%E9%A2%98)
+
+## 17. AtomicReference 原子引用
+
+- 类似原子包装类，将一个 Java 类，用原子引用类包装起来，以提供原子操作
+
+## 18. AtomicStampedReference 版本号原子引用
+
+## 19. 解决 ABA 问题
+
+- CAS 优化
+  - LongAdder
+  - LongAccumulator
+
+## 20. ArrayList 的 ConcurrentModificationException
+
+- 原因: 写操作会先对集合长度做操作，再对集合元素做操作，整个写操作不是原子性的，在多线程中会导致对错误索引的元素进行操作等一致性问题，因此会触发 `ConcurrentModificationException`
+
+- 解决办法
+
+  - Vector(synchronized)
+  - Collections.synchronizedList(arrayList)
+  - CopyOnWriteArrayList
+
+- [集合类的线程安全](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/4_ArrayList%E4%B8%BA%E4%BB%80%E4%B9%88%E7%BA%BF%E7%A8%8B%E4%B8%8D%E5%AE%89%E5%85%A8/ArrayList%E7%BA%BF%E7%A8%8B%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84%E4%B8%BE%E4%BE%8B)
+
+## 21. CopyOnWriteArrayList 写时复制
+
+- 应用于读写分离，在写操作中对 List 对象加锁，并赋值一个 List，对复本做写操作后返回该复本
+
+## 22. HashSet 的 ConcurrentModificationException
+
+- HashSet 底层结构就是 HashMap，value 是 Object 类型的常量
+- CopyOnWriteArraySet 的底层结构是 CopyOnWriteArrayList，add 操作实际执行 addIfAbsent
+
+## 23. HashMap 的 ConcurrentModificationException
+
+- ConcurrentHashMap synchronized + 判空机制优化
+
+## 24. TransferValue
+
+- [TransferValue](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/5_TransferValue%E6%98%AF%E4%BB%80%E4%B9%88)
+
+- 字节码函数执行过程
+
+## 25. 公平锁与非公平锁
+
+- [公平锁与非公平锁](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/6_Java%E7%9A%84%E9%94%81/Java%E9%94%81%E4%B9%8B%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81)
+
+## 26. 可重入锁(递归锁)
+
+- [可重入锁](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/6_Java%E7%9A%84%E9%94%81/Java%E9%94%81%E4%B9%8B%E5%8F%AF%E9%87%8D%E5%85%A5%E9%94%81%E5%92%8C%E9%80%92%E5%BD%92%E9%94%81)
+
+## 27. 可重复锁(递归锁) 验证
+
+## 28. 自旋锁
+
+- [自旋锁](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/6_Java%E7%9A%84%E9%94%81/Java%E9%94%81%E4%B9%8B%E8%87%AA%E6%97%8B%E9%94%81#%E4%BC%98%E7%BC%BA%E7%82%B9)
+
+- 优点：循环比较获取直到成功为止，没有类似于 wait 的阻塞
+- 缺点：当不断自旋的线程越来越多的时候，会因为执行 while 循环不断的消耗 CPU 资源
+
+## 29. 自旋锁 验证
+
+## 30. 读写锁
+
+- 既保证数据一致性，由优化了读操作的性能
+- 锁降级: - 获取写锁 -> 获取读锁 -> 释放写锁(降级为读锁) -> 释放读锁
+- [读写锁](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/6_Java%E7%9A%84%E9%94%81/Java%E9%94%81%E4%B9%8B%E8%AF%BB%E5%86%99%E9%94%81)
+
+## 31. 读写锁 验证
+
+## 32. CountDownLatch
+
+- await 阻塞一个线程，直到其他线程到达条件
+- [CountDownLatch](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/7_CountDownLatch_CyclicBarrier_Semaphore%E4%BD%BF%E7%94%A8/CountDownLatch)
+
+## 33. CyclicBarrier
+
+- await 阻塞所有线程，直到达到条件，一起启动
+- [CyclicBarrier](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/7_CountDownLatch_CyclicBarrier_Semaphore%E4%BD%BF%E7%94%A8/CyclicBarrier)
+
+## 34. Semaphore
+
+- 类似线程池，持有(acquire)一定数量的许可证，用完即止，释放(release)后许可会回收
+- [Semaphore](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/7_CountDownLatch_CyclicBarrier_Semaphore%E4%BD%BF%E7%94%A8/Semaphore)
+
+## 35. 阻塞队列
+
+- [阻塞队列](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/8_%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97)
+
+## 36. 阻塞队列 7 个实现
+
+## 37. 阻塞队列操作异常组
+
+## 38. 阻塞队列操作返回布尔值组
+
+## 39. 阻塞队列操作阻塞和超时组
+
+## 40. 阻塞队列 SynchronousQueue
+
+## 41. 线程通信
+
+- 生产者消费者
+
+## 42. synchronized 和 Lock 的区别
+
+- [synchronized 和 Lock](http://www.moguit.cn/#/info?blogUid=12f448bcca7fc10c94c4c232bef7a1fa)
+
+## 43. Condition
+
+- await -- wait
+- signal -- notify(随机), notifyAll(全部)
+
+## 44. 线程通信
+
+- 生产者消费者(CAS + 阻塞队列)
+
+## 45. Callable
+
+- Thread -> FutureTask(Callable, Runnable) -> RunnableFuture -> Runnable
+- [Callable](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/10_%E7%BA%BF%E7%A8%8B%E6%B1%A0)
+
+## 46. 线程池
+
+- [线程池](https://gitee.com/moxi159753/LearningNotes/tree/master/%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/JUC/10_%E7%BA%BF%E7%A8%8B%E6%B1%A0)
+
+# Java 第三季
+
+## Java 基础
+
+- intern，运行时常量池存在则直接返回，不存在则将对象放入常量池，并返回引用
+- 给定数组 nums 和指定值 sum，求两数（和为 sum）下标
+
+## JUC
+
+## Spring
+
+## Redis
+
+## 补充说明
 
