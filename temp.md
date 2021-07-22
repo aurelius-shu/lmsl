@@ -46,3 +46,23 @@ List 并发修改异常
 行锁（发生死锁）、表锁
 
 BlockingQueue
+
+## CORS 配置
+
+**Cross-Origin Resource Sharing**
+
+1. 在服务端，网关，Nginx 三层，只能配置一个放行
+2. 在服务端配置放行，通过网关请求还是会存在跨域拦截
+
+### 跨域测试
+
+```javascript
+var xhr = new XMLHttpRequest();
+xhr.open('POST', 'http://172.18.10.89/pos-cloud/api/up-selling/contact-us', true);
+xhr.setRequestHeader("Content-Type","application/json");
+xhr.send('{  "id": 0,  "uid": 0,  "uname": "string",  "phone": "string",  "ename": "string",  "area": "string",  "timestamp": "2021-07-22T05:44:35.872Z"}');
+xhr.onload = function(e) {
+    var xhr = e.target;
+    console.log(xhr.responseText);
+}
+```
