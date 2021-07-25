@@ -13,6 +13,7 @@
 - [登陆](#登陆)
   - [命令行远程登陆](#命令行远程登陆)
 - [docker](#docker)
+- [修改时区](#修改时区)
 
 <!-- /code_chunk_output -->
 
@@ -276,4 +277,18 @@ mysql -h port -u user -p
 ```shell
 # 启动
 sudo docker run --name mysql -e MYSQL_ROOT_PASSWORD=999999 -p 3306:3306 -d mysql
+```
+
+# 修改时区
+
+```sql
+-- 查看当前时间
+select curtime();
+
+-- 修改mysql全局时区为北京时间，即我们所在的东8区
+set global time_zone = '+8:00';
+-- 修改当前会话时区
+set time_zone = '+8:00';
+-- 立即生效
+flush privileges;
 ```

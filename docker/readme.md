@@ -39,6 +39,7 @@ docker run -d -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=999999 --restart=
 ```shell
 docker run -d -p 6379:6379 --name redis redis --restart=always
 docker update --restart=always redis
+docker update --restart=no redis
 ```
 
 ## nacos

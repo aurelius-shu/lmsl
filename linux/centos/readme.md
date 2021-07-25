@@ -164,3 +164,23 @@ sudo firewall-cmd --reload
 # 关闭端口
 sudo firewall-cmd --remove-port=6379/tcp
 ```
+
+# 免密登录
+
+**linux 登录 linux**
+
+```shell
+# 生成秘钥对
+ssh-keygen
+# 拷贝公钥到目标主机的 authorized_keys
+ssh-copy-id dest-host
+```
+
+**windows 登录 linux**
+
+```cmd
+# 拷贝公钥到目标主机
+scp C:\Users\Aurelius\.ssh\id_rsa.pub root@docker:~/.ssh/windows_ras.pub
+# 拷贝 windows_ras.pub 到 authorized_keys
+mv windows_ras.pub authorized_keys
+```

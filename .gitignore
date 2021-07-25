@@ -126,6 +126,5 @@ python/debug
 
 
 .DS_Store
-java/api/
-java/docs/
+java/oraclejdk/
 ~$*.xlsx
