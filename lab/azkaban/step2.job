@@ -1,4 +1,0 @@
-# step2.job
-type=command
-dependencies=step1
-command=echo step2

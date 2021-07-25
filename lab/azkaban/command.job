@@ -1,3 +1,0 @@
-# command.job
-type=command
-command=echo 'hello azkaban'
