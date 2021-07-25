@@ -66,3 +66,11 @@ xhr.onload = function(e) {
     console.log(xhr.responseText);
 }
 ```
+
+```shell
+java -jar -Dgalaxy.cloud.job.oss-kafka-integrator.enable=true \
+    -Dgalaxy.cloud.job.oss-kafka-integrator.partition-executor.partition-start=202012011500 \
+    -Dgalaxy.cloud.job.oss-kafka-integrator.partition-executor.partition-stop=202012011600 \
+    -Dgalaxy.cloud.job.oss-kafka-integrator.partition-executer.object-prefix=bak-kdcloud-oss- \
+    cloud-galaxy-job-1.0-SNAPSHOT.jar
+```

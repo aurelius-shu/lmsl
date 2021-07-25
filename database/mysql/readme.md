@@ -14,6 +14,7 @@
   - [命令行远程登陆](#命令行远程登陆)
 - [docker](#docker)
 - [修改时区](#修改时区)
+- [mysql client](#mysql-client)
 
 <!-- /code_chunk_output -->
 
@@ -291,4 +292,11 @@ set global time_zone = '+8:00';
 set time_zone = '+8:00';
 -- 立即生效
 flush privileges;
+```
+
+# mysql client
+
+```shell
+wget http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-community-client-5.7.23-1.el7.x86_64.rpm
+rpm -ivh mysql/MySQL-5.7/mysql-community-client-5.7.23-1.el7.x86_64.rpm --force --nodeps
 ```

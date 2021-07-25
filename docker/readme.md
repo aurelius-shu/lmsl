@@ -11,6 +11,7 @@
   - [nacos](#nacos)
   - [datahub-ci-core](#datahub-ci-core)
   - [cloud-galaxy](#cloud-galaxy)
+  - [pyrubik](#pyrubik)
   - [datahub](#datahub)
 
 <!-- /code_chunk_output -->
@@ -39,7 +40,6 @@ docker run -d -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=999999 --restart=
 ```shell
 docker run -d -p 6379:6379 --name redis redis --restart=always
 docker update --restart=always redis
-docker update --restart=no redis
 ```
 
 ## nacos
@@ -75,7 +75,7 @@ function clean_docker_containers__images(){
         echo "no args input..."
         exit;
     else
-        cids=$(sudo docker ps | grep $1 | awk '{print $1}')
+        cids=$(sudo docker ps -a | grep $1 | awk '{print $1}')
         for cid in ${cids}
         do
             echo "stop container id" ${cid}
@@ -124,7 +124,7 @@ CMD ["java", "-jar", "cloud-galaxy-pos-1.0-SNAPSHOT.jar"]
 # build cloud-galaxy
 
 sourcedir=/home/aurelius/software/cloud-galaxy
-buildver=${buildvers}
+buildver=1.0.0
 builddir=/home/aurelius/software
 
 cd $sourcedir
@@ -155,7 +155,7 @@ cp ${sourcedir}/infrastructure/cloud-galaxy-gateway/target/cloud-galaxy-gateway-
 # deploy cloud-galaxy
 
 builddir=/home/aurelius/software
-tag=${tag}
+tag=1.0.0
 
 # clean old containers and images
 function clean_docker_containers__images(){
@@ -164,7 +164,7 @@ function clean_docker_containers__images(){
         echo "no args input..."
         exit;
     else
-        cids=$(sudo docker ps | grep $1 | awk '{print $1}')
+        cids=$(sudo docker ps -a | grep $1 | awk '{print $1}')
         for cid in ${cids}
         do
             echo "stop container id" ${cid}
@@ -214,6 +214,62 @@ echo "build docker image cloud-galaxy-gateway"
 sudo docker build -t cloud-galaxy-gateway:${tag} .
 echo "run docker container cloud-galaxy-gateway"
 sudo docker run --privileged=true -idt -p 8085:8085 -v ${builddir}/cloud-galaxy-gateway/logs:/app/logs --name cloud-galaxy-gateway cloud-galaxy-gateway:${tag}
+```
+
+## pyrubik
+
+**Dockerfile**
+
+```Dockerfile
+FROM python:3.9.5
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
+WORKDIR /app
+RUN pip install -r requirements.txt
+COPY . .
+ENTRYPOINT ["python", "bin/manage.py", "janitor"]
+```
+
+**deploy pyrubik**
+
+```shell
+# deploy pyrubik
+
+builddir=/home/aurelius/software
+tag=1.0.0
+
+# clean old containers and images
+function clean_docker_containers__images(){
+    if [ $# -lt 1 ]
+    then
+        echo "no args input..."
+        exit;
+    else
+        cids=$(sudo docker ps -a | grep $1 | awk '{print $1}')
+        for cid in ${cids}
+        do
+            echo "stop container id" ${cid}
+            sudo docker stop ${cid}
+            echo "remove container id" ${cid}
+            sudo docker rm ${cid}
+        done
+
+        iids=$(sudo docker images | grep $1 | awk '{print $3}')
+        for iid in ${iids}
+        do
+            echo "remove image id" ${iid}
+            sudo docker rmi ${iid}
+        done
+    fi
+}
+
+# deploy pyrubik
+clean_docker_containers__images pyrubik
+
+cd ${builddir}/pyrubik
+echo "build docker image pyrubik"
+sudo docker build -t pyrubik:${tag} .
+echo "run docker container pyrubik"
+sudo docker run --privileged=true -idt -v ${builddir}/pyrubik/log:/app/log --name pyrubik pyrubik:${tag}
 ```
 
 ## datahub
