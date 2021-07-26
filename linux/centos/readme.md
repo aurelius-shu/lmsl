@@ -1,6 +1,26 @@
-# 网络配置
+# CentOS
 
-## 设置 IP, GATEWAY, DNS
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [CentOS](#centos)
+  - [网络配置](#网络配置)
+  - [修改主机名](#修改主机名)
+  - [关闭防火墙](#关闭防火墙)
+  - [创建用户，设置文件权限](#创建用户设置文件权限)
+  - [图形化界面安装（可选安装）](#图形化界面安装可选安装)
+  - [centos7 yum 源设置（可选设置）](#centos7-yum-源设置可选设置)
+  - [克隆虚拟机](#克隆虚拟机)
+  - [端口](#端口)
+  - [免密登录](#免密登录)
+  - [boot 目录空间不足](#boot-目录空间不足)
+
+<!-- /code_chunk_output -->
+
+## 网络配置
+
+**设置 IP, GATEWAY, DNS**
 
 ```shell
 # 编辑网络配置
@@ -134,7 +154,7 @@ yum clean all
 yum makecache
 ```
 
-# 克隆虚拟机
+## 克隆虚拟机
 
 1. 修改静态 IP
 
@@ -149,7 +169,7 @@ nmcli c up ens33
 
 4. 修改 root 密码
 
-# 端口
+## 端口
 
 ```shell
 # 查看端口
@@ -165,7 +185,7 @@ sudo firewall-cmd --reload
 sudo firewall-cmd --remove-port=6379/tcp
 ```
 
-# 免密登录
+## 免密登录
 
 **linux 登录 linux**
 
@@ -183,4 +203,17 @@ ssh-copy-id dest-host
 scp C:\Users\Aurelius\.ssh\id_rsa.pub root@docker:~/.ssh/windows_ras.pub
 # 拷贝 windows_ras.pub 到 authorized_keys
 mv windows_ras.pub authorized_keys
+```
+
+## boot 目录空间不足
+
+```shell
+# 查看现运行的内核版本
+uname -r
+
+# 列出所有的内核文件
+rpm -q kernel
+
+# 删除所有旧的内核文件
+rpm -e kernel-2.6.32-131.0.15.el6.x86_64
 ```

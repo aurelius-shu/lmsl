@@ -19,15 +19,8 @@ Spring 开发
    - 设置 ORM
 4. 开发 Web 应用
 
-## 20210704
-
-1. Nacos
-2. Sentinel
-3. Seata
 
 约定 >> 配置 >> 编码
-
-docker - 20210707
 
 ## 20210708
 
