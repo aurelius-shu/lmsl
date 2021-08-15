@@ -67,3 +67,32 @@ java -jar -Dgalaxy.cloud.job.oss-kafka-integrator.enable=true \
     -Dgalaxy.cloud.job.oss-kafka-integrator.partition-executer.object-prefix=bak-kdcloud-oss- \
     cloud-galaxy-job-1.0-SNAPSHOT.jar
 ```
+
+# 一、POS Cloud 架构与环境
+1. 【POS Cloud 架构】缓存层抽象，提供 pos-backend api 的 Redis 缓存服务
+2. 【POS Cloud 架构】持久层抽象，消除通用数据库操作的 Mapper 层与 Service 层
+3. 【POS Cloud 环境】华为云环境部署，DockerService、Nacos、Sentinel、MySQL、Redis、Nginx、Pos Cloud、Job Cloud
+4. 【POS Cloud 环境】自动化测试、构建、部署，Jenkins Agent、DockerRepository、CI/CD 地铁线
+5. 【POS Cloud 环境】前端部署，动静分离
+
+# 二、新特性弹窗推送（落地页）
+1. 【基础数据】模块（子系统）基础资料
+2. 【基础数据】版本基础资料优化
+3. 【POS Cloud 功能】落地页服务 Rest API，服务端接口开发，华为云部署，云平台发布
+4. 【POS Cloud 功能】落地页跳转（产品端打开）
+
+# 三、帮助中心配置中心与云服务
+1. 【工具预研】wiki 转 markdown，及其代码化
+2. 【工具预研】markdown 转 html，及其代码化
+3. 【基础数据】文档基础资料、目录树、权限隔离、版本隔离，作为帮助中心配置后台
+4. 【文档服务】html 文档自动生成与手动触发、版本隔离
+5. 【文档服务】文档（左目录、版本隔离）获取 Rest API，服务端接口开发，华为云部署，云平台发布
+6. 【连接服务】常见问题、使用技巧、相关课程获取 Rest API，服务端接口开发，华为云部署，云平台发布
+7. 【产品端功能】帮助中心页面开发，帮助中心页面开发，文档目录树、文档、常见问题、使用技巧、相关课程的条件请求和展示
+
+# 四、异常提示可运营性改造
+
+1. 【数据分析】产品异常（含免统计）统计
+2. 【数据分析】产品异常错误 ID 可用性分析
+3. 【数据集成】社区产品异常错误 ID 与运营资料映射数据同步
+4. 【POS Cloud 功能】运营资料 Rest API，服务端接口开发，华为云部署，云平台发布
