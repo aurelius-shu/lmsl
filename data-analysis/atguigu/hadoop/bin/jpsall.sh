@@ -3,5 +3,5 @@
 for host in node01 node02 node03
 do
     echo =============== $host ===============
-    ssh $host jps
+    ssh $host jps -l
 done

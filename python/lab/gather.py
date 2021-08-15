@@ -24,7 +24,7 @@ def copy(sroot, droot):
     for file in files:
         shutil.copyfile(os.path.join(sroot, file), os.path.join(droot, file))
         print('copy: ' + os.path.join(sroot, file) + ' -> ' + os.path.join(droot, file))
-        counts+=1
+        counts += 1
     fonds = [ fond for fond in os.listdir(sroot) if os.path.isdir(os.path.join(sroot, fond))]
     for fond in fonds:
         copy(os.path.join(sroot, fond), droot)
