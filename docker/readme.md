@@ -253,8 +253,6 @@ else
     sudo docker build -t ${app}:${tag} .
 
     echo "push ${app} to repository"
-    # docker login -u=324217 kcr.kingdee.com
-    # PosKdG@2021
     sudo docker tag `sudo docker images -q --filter reference=${app}` ${repository}/${app}:${tag}
     sudo docker push ${repository}/${app}:${tag}
 fi
