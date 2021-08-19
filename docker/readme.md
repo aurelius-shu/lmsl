@@ -10,7 +10,17 @@
   - [redis](#redis)
   - [nacos](#nacos)
   - [datahub-core](#datahub-core)
+    - [Dockerfile](#dockerfile)
+    - [upgrade datahub-core](#upgrade-datahub-core)
+    - [build datahub-core](#build-datahub-core)
+    - [deploy cloud-galaxy on HW Cloud](#deploy-cloud-galaxy-on-hw-cloud)
   - [cloud-galaxy](#cloud-galaxy)
+    - [Dockerfile](#dockerfile-1)
+    - [compile cloud-galaxy](#compile-cloud-galaxy)
+    - [build cloud-galaxy](#build-cloud-galaxy)
+    - [run cloud-galaxy on test](#run-cloud-galaxy-on-test)
+    - [deploy cloud-galaxy on HW Cloud](#deploy-cloud-galaxy-on-hw-cloud-1)
+    - [message](#message)
   - [pyrubik](#pyrubik)
   - [datahub](#datahub)
 
@@ -61,6 +71,8 @@ docker  run \
 
 ## datahub-core
 
+### Dockerfile
+
 ```Dockerfile
 FROM microsoft/dotnet:2.1-aspnetcore-runtime AS base
 WORKDIR /app
@@ -68,6 +80,8 @@ WORKDIR /app
 COPY . .
 ENTRYPOINT ["dotnet", "Kingdee.DataHub.WebApi.dll"]
 ```
+
+### upgrade datahub-core
 
 ```shell
 # upgrade datahub-core
@@ -116,7 +130,7 @@ else
 
     if [ $4 = true ]
     then
-        echo "------------start build ${module}------------"        
+        echo "------------start build ${module}------------"
         echo "------------remove image:${module}------------"
         sudo docker rmi `sudo docker images -q -f reference=${module}:${tag}` -f
 
@@ -131,6 +145,8 @@ else
     echo "------------finish upgrade ${app}------------"
 fi
 ```
+
+### build datahub-core
 
 ```shell
 # build datahub-core
@@ -184,7 +200,48 @@ else
 fi
 ```
 
+### deploy cloud-galaxy on HW Cloud
+
+```shell
+# deploy cloud-galaxy on HW Cloud
+
+if [ $# -lt 4 ]
+then
+    echo "not enough args input..."
+    exit;
+else
+    repository=kcr.kingdee.com/pos-cloud
+    module=$1
+    app=$2
+    tag=1.0.0
+    port=$3
+
+    echo "------stop container ${app}------"
+    # sudo docker stop ${app}
+    docker stop `docker ps -aq --filter name=${app}`
+
+    echo "------remove container ${app}------"
+    # sudo docker rm ${app}
+    docker rm `docker ps -aq --filter name=${app}`
+
+    if [ $4 = true ]
+    then
+        echo "------remove image ${app}------"
+        docker rmi `docker images -q --filter reference=${repository}/${module}:${tag}`
+
+        echo "------pull image ${app} from repository------"
+        docker pull ${repository}/${module}:${tag}
+    fi
+
+    echo "------run docker container ${app}------"
+    docker run --privileged=true -idt -p ${port}:80 -v /kingdee/logs/${app}/log:/app/Log -v /kingdee/logs/${app}/images:/app/Images --name ${app} ${repository}/${module}:${tag}
+    # docker run --privileged=true -idt -p ${port}:80 -v /kingdee/logs/${app}/log:/app/Log -v /kingdee/logs/${app}/images:/app/Images --name ${app} ${module}:${tag}
+fi
+```
+
 ## cloud-galaxy
+
+### Dockerfile
 
 ```Dockerfile
 FROM openjdk:8
@@ -193,6 +250,8 @@ WORKDIR /app
 COPY . .
 CMD ["java", "-jar", "cloud-galaxy-pos-1.0-SNAPSHOT.jar"]
 ```
+
+### compile cloud-galaxy
 
 ```shell
 # compile cloud-galaxy
@@ -220,6 +279,8 @@ else
     echo "finish compile $1"
 fi
 ```
+
+### build cloud-galaxy
 
 ```shell
 # build cloud-galaxy
@@ -258,6 +319,8 @@ else
 fi
 ```
 
+### run cloud-galaxy on test
+
 ```shell
 # run cloud-galaxy on test
 if [ $# -lt 2 ]
@@ -275,11 +338,15 @@ else
 fi
 ```
 
+### deploy cloud-galaxy on HW Cloud
+
 ```shell
 # deploy cloud-galaxy on HW Cloud
+# deploy cloud-galaxy
+
 if [ $# -lt 2 ]
 then
-    echo "not enough args input..."
+    echo "------not enough args input...------"
     exit;
 else
     repository=kcr.kingdee.com/pos-cloud
@@ -287,24 +354,26 @@ else
     tag=1.0.0
     port=$2
 
-    echo "stop container ${app}"
+    echo "------stop container ${app}------"
     # sudo docker stop ${app}
     docker stop `docker ps -aq --filter name=${app}`
 
-    echo "remove container ${app}"
+    echo "------remove container ${app}------"
     # sudo docker rm ${app}
     docker rm `docker ps -aq --filter name=${app}`
 
-    echo "remove image ${app}"
+    echo "------remove image ${app}------"
     docker rmi `docker images -q --filter reference=${repository}/${app}`
 
-    echo "pull image ${app} from repository"
+    echo "------pull image ${app} from repository------"
     docker pull ${repository}/${app}:${tag}
 
-    echo "run docker container ${app}"
+    echo "------run docker container ${app}------"
     docker run --privileged=true -idt -p $port:$port -v /kingdee/logs/${app}:/app/logs --name ${app} ${repository}/${app}:${tag}
 fi
 ```
+
+### message
 
 ```txt
 cloud-galaxy-pos-test 升级存在异常，请查阅地铁线与构建服务器上详细日志进行修复后重试
