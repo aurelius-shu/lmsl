@@ -9,9 +9,8 @@
   - [mysql](#mysql)
   - [redis](#redis)
   - [nacos](#nacos)
-  - [datahub-ci-core](#datahub-ci-core)
+  - [datahub-core](#datahub-core)
   - [cloud-galaxy](#cloud-galaxy)
-    - [cloud-galaxy-pos](#cloud-galaxy-pos)
   - [pyrubik](#pyrubik)
   - [datahub](#datahub)
 
@@ -60,53 +59,129 @@ docker  run \
     nacos/nacos-server
 ```
 
-## datahub-ci-core
+## datahub-core
 
-**build-datahub-ci-core**
+```Dockerfile
+FROM microsoft/dotnet:2.1-aspnetcore-runtime AS base
+WORKDIR /app
+
+COPY . .
+ENTRYPOINT ["dotnet", "Kingdee.DataHub.WebApi.dll"]
+```
 
 ```shell
-sourcedir=/home/aurelius/software/appraisal
-builddir=/home/aurelius/software/datahub-ci-core
-tag=1.0.0
+# upgrade datahub-core
+if [ $# -lt 4 ]
+then
+    echo "------------not enough args(4) input...------------"
+    exit;
+else
+    compile=/kingdee/build/datahub
+    module=$1
+    tag=1.0.0
+    app=$2
+    port=$3
 
-# clean old containers and images
-function clean_docker_containers__images(){
-    if [ $# -lt 1 ]
+    cd ${compile}
+
+    echo "------------update datahub-core------------"
+    git pull origin master
+
+    # clean
+    dotnet clean
+
+    # build
+    dotnet build
+
+    # publish
+    dotnet publish ${compile}/Kingdee.DataHub.WebApi/Kingdee.DataHub.WebApi.csproj -o ${compile}/publish
+
+    echo "------------collect datahub-core dlls------------"
+    rsync -av ${compile}/publish/* /kingdee/build/${module}/
+
+    cd /kingdee/build/appraisal
+
+    echo "------------updage appraisal static files------------"
+    git pull origin master
+
+    echo "------------collect appraisal static files------------"
+    rsync -av --exclude appraisal/.git /kingdee/build/appraisal /kingdee/build/${module}/wwwroot/
+
+    cd /kingdee/build/${module}
+    echo "------------stop docker container:${app}------------"
+    sudo docker stop `sudo docker ps -aq -f name=${app}`
+
+    echo "------------remove container:${app}------------"
+    sudo docker rm `sudo docker ps -aq -f name=${app}`
+
+    if [ $4 = true ]
     then
-        echo "no args input..."
-        exit;
+        echo "------------start build ${module}------------"        
+        echo "------------remove image:${module}------------"
+        sudo docker rmi `sudo docker images -q -f reference=${module}:${tag}` -f
+
+        echo "------------build docker images:${module}:${tag}------------"
+        sudo docker build -t ${module}:${tag} .
     else
-        cids=$(sudo docker ps -a | grep $1 | awk '{print $1}')
-        for cid in ${cids}
-        do
-            echo "stop container id" ${cid}
-            sudo docker stop ${cid}
-            echo "remove container id" ${cid}
-            sudo docker rm ${cid}
-        done
-
-        iids=$(sudo docker images | grep $1 | awk '{print $3}')
-        for iid in ${iids}
-        do
-            echo "remove image id" ${iid}
-            sudo docker rmi ${iid}
-        done
+        echo "------------without build ${module}------------"
     fi
-}
 
-cd ${sourcedir}
-git pull origin master
-sudo rm -rf ${builddir}/wwwroot/appraisal/
-sudo cp -r ${sourcedir}/ ${builddir}/wwwroot/appraisal/
+    echo "------------run ${app}------------"
+    sudo docker run --privileged=true -idt -p ${port}:80 -v /kingdee/logs/${app}/log:/app/Log -v /kingdee/logs/${app}/images:/app/Images --name ${app} ${module}:${tag}
+    echo "------------finish upgrade ${app}------------"
+fi
+```
 
-clean_docker_containers__images datahub-ci-core
+```shell
+# build datahub-core
+if [ $# -lt 1 ]
+then
+    echo "------------not enough args(1) input...------------"
+    exit;
+else
+    compile=/kingdee/build/datahub
+    repository=kcr.kingdee.com/pos-cloud
+    module=$1
+    tag=1.0.0
 
-cd ${builddir}
-echo "build datahub-ci-core"
-sudo docker build -t datahub-ci-core:${tag} .
+    cd ${compile}
 
-echo "run datahub-ci-core"
-sudo docker run --privileged=true -idt -p 5001:80 -v /home/aurelius/software/logs/datahub-ci-core:/app/Log --name datahub-ci-core datahub-ci-core:${tag}
+    echo "------------update datahub-core------------"
+    git pull origin master
+
+    # clean
+    dotnet clean
+
+    # build
+    dotnet build
+
+    # publish
+    dotnet publish ${compile}/Kingdee.DataHub.WebApi/Kingdee.DataHub.WebApi.csproj -o ${compile}/publish
+
+    echo "------------collect datahub-core dlls------------"
+    rsync -av ${compile}/publish/* /kingdee/build/${module}/
+
+    cd /kingdee/build/appraisal
+
+    echo "------------updage appraisal static files------------"
+    git pull origin master
+
+    echo "------------collect appraisal static files------------"
+    rsync -av --exclude appraisal/.git /kingdee/build/appraisal /kingdee/build/${module}/wwwroot/
+
+    cd /kingdee/build/${module}
+    echo "------------start build ${module}------------"
+    echo "------------remove image:${module}------------"
+    sudo docker rmi `sudo docker images -q -f reference=${module}:${tag}` -f
+
+    echo "------------build docker images:${module}:${tag}------------"
+    sudo docker build -t ${module}:${tag} .
+
+    echo "------------push ${app}:${tag}------------"
+    sudo docker tag `sudo docker images -q -f reference=${module}:${tag}` ${repository}/${module}:${tag}
+    sudo docker push ${repository}/${module}:${tag}
+    echo "------------finished build ${module}------------"
+fi
 ```
 
 ## cloud-galaxy
