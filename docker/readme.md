@@ -11,6 +11,7 @@
   - [nacos](#nacos)
   - [datahub-ci-core](#datahub-ci-core)
   - [cloud-galaxy](#cloud-galaxy)
+    - [cloud-galaxy-pos](#cloud-galaxy-pos)
   - [pyrubik](#pyrubik)
   - [datahub](#datahub)
 
@@ -118,102 +119,128 @@ COPY . .
 CMD ["java", "-jar", "cloud-galaxy-pos-1.0-SNAPSHOT.jar"]
 ```
 
-**build cloud-galaxy**
+```shell
+# compile cloud-galaxy
+if [ $# -lt 3 ]
+then
+    echo "not enough args input..."
+    exit;
+else
+    source=/kingdee/build/cloud-galaxy
+    build=/kingdee/build/$1
+    layer=$2
+    module=$3
+    jarver=1.0-SNAPSHOT
+
+    cd $source
+    echo "pull source code from gitlab"
+    git pull origin master
+
+    echo "compile $1 by maven"
+    mvn clean package -DskipTests
+
+    echo "copy module:${module} into ${build}"
+    cp ${source}/${layer}/${module}/target/${module}-${jarver}.jar ${build}/${module}-${jarver}.jar
+
+    echo "finish compile $1"
+fi
+```
 
 ```shell
 # build cloud-galaxy
+if [ $# -lt 1 ]
+then
+    echo "no args input..."
+    exit;
+else
+    build=/kingdee/build/$1
+    repository=kcr.kingdee.com/pos-cloud
+    app=$1
+    tag=1.0.0
 
-sourcedir=/home/aurelius/software/cloud-galaxy
-buildver=1.0.0
-builddir=/home/aurelius/software
+    echo "stop container ${app}"
+    # sudo docker stop ${app}
+    sudo docker stop `sudo docker ps -aq --filter ancestor=${app}:${tag}`
 
-cd $sourcedir
-echo "pull source code from gitlab"
-git pull origin master
+    echo "remove container ${app}"
+    # sudo docker rm ${app}
+    sudo docker rm `sudo docker ps -aq --filter ancestor=${app}:${tag}`
 
-echo "build project by maven"
-mvn clean package -DskipTests
+    echo "remove repository image ${app}"
+    sudo docker rmi `sudo docker images -q --filter reference=${repository}/${app}:${tag}`
 
-# cd ${sourcedir}/app/cloud-galaxy-pos
-# mvn clean package -DskipTests
-# cd ${sourcedir}/app/cloud-galaxy-pos-backend
-# mvn clean package -DskipTests
-# cd ${sourcedir}/app/cloud-galaxy-job
-# mvn clean package -DskipTests
-# cd ${sourcedir}/infrastructure/cloud-galaxy-gateway
-# mvn clean package -DskipTests
+    echo "remove local image ${app}"
+    # sudo docker rmi ${app}
+    sudo docker rmi `sudo docker images -q --filter reference=${app}:${tag}` -f
 
-cp ${sourcedir}/app/cloud-galaxy-pos/target/cloud-galaxy-pos-${buildver}.jar ${builddir}/cloud-galaxy-pos/cloud-galaxy-pos-${buildver}.jar
-cp ${sourcedir}/app/cloud-galaxy-pos-backend/target/cloud-galaxy-pos-backend-${buildver}.jar ${builddir}/cloud-galaxy-pos-backend/cloud-galaxy-pos-backend-${buildver}.jar
-cp ${sourcedir}/app/cloud-galaxy-job/target/cloud-galaxy-job-${buildver}.jar ${builddir}/cloud-galaxy-job/cloud-galaxy-job-${buildver}.jar
-cp ${sourcedir}/infrastructure/cloud-galaxy-gateway/target/cloud-galaxy-gateway-${buildver}.jar ${builddir}/cloud-galaxy-gateway/cloud-galaxy-gateway-${buildver}.jar
+    cd $build
+    echo "build docker image ${app}"
+    sudo docker build -t ${app}:${tag} .
+
+    echo "push ${app} to repository"
+    # docker login -u=324217 kcr.kingdee.com
+    # PosKdG@2021
+    sudo docker tag `sudo docker images -q --filter reference=${app}` ${repository}/${app}:${tag}
+    sudo docker push ${repository}/${app}:${tag}
+fi
 ```
 
-**deploy cloud-galaxy**
+```shell
+# run cloud-galaxy on test
+if [ $# -lt 2 ]
+then
+    echo "not enough args input..."
+    exit;
+else
+    build=/kingdee/build/$1
+    app=$1
+    tag=1.0.0
+    port=$2
+
+    echo "run docker container ${app}"
+    sudo docker run --privileged=true -idt -p $port:$port -v ${build}/logs:/app/logs --name ${app} ${app}:${tag}
+fi
+```
 
 ```shell
-# deploy cloud-galaxy
+# deploy cloud-galaxy on HW Cloud
+if [ $# -lt 2 ]
+then
+    echo "not enough args input..."
+    exit;
+else
+    repository=kcr.kingdee.com/pos-cloud
+    app=$1
+    tag=1.0.0
+    port=$2
 
-builddir=/home/aurelius/software
-tag=1.0.0
+    echo "stop container ${app}"
+    # sudo docker stop ${app}
+    docker stop `docker ps -aq --filter name=${app}`
 
-# clean old containers and images
-function clean_docker_containers__images(){
-    if [ $# -lt 1 ]
-    then
-        echo "no args input..."
-        exit;
-    else
-        cids=$(sudo docker ps -a | grep $1 | awk '{print $1}')
-        for cid in ${cids}
-        do
-            echo "stop container id" ${cid}
-            sudo docker stop ${cid}
-            echo "remove container id" ${cid}
-            sudo docker rm ${cid}
-        done
+    echo "remove container ${app}"
+    # sudo docker rm ${app}
+    docker rm `docker ps -aq --filter name=${app}`
 
-        iids=$(sudo docker images | grep $1 | awk '{print $3}')
-        for iid in ${iids}
-        do
-            echo "remove image id" ${iid}
-            sudo docker rmi ${iid}
-        done
-    fi
-}
+    echo "remove image ${app}"
+    docker rmi `docker images -q --filter reference=${repository}/${app}`
 
-# deploy cloud-galaxy-pos & cloud-galaxy-pos-backend
-clean_docker_containers__images cloud-galaxy-pos
+    echo "pull image ${app} from repository"
+    docker pull ${repository}/${app}:${tag}
 
-cd ${builddir}/cloud-galaxy-pos
-echo "build docker image cloud-galaxy-pos"
-sudo docker build -t cloud-galaxy-pos:${tag} .
-echo "run docker container cloud-galaxy-pos"
-sudo docker run --privileged=true -idt -p 8086:8086 -v ${builddir}/cloud-galaxy-pos/logs:/app/logs --name cloud-galaxy-pos cloud-galaxy-pos:${tag}
+    echo "run docker container ${app}"
+    docker run --privileged=true -idt -p $port:$port -v /kingdee/logs/${app}:/app/logs --name ${app} ${repository}/${app}:${tag}
+fi
+```
 
-cd ${builddir}/cloud-galaxy-pos-backend
-echo "build docker image cloud-galaxy-pos-backend"
-sudo docker build -t cloud-galaxy-pos-backend:${tag} .
-echo "run docker container cloud-galaxy-pos-backend"
-sudo docker run --privileged=true -idt -p 8088:8088 -v ${builddir}/cloud-galaxy-pos-backend/logs:/app/logs --name cloud-galaxy-pos-backend cloud-galaxy-pos-backend:${tag}
+```txt
+cloud-galaxy-pos-test 升级存在异常，请查阅地铁线与构建服务器上详细日志进行修复后重试
 
-# deploy cloud-galaxy-job
-clean_docker_containers__images cloud-galaxy-job
+cloud-galaxy-pos-test 升级成功
 
-cd ${builddir}/cloud-galaxy-job
-echo "build docker image cloud-galaxy-job"
-sudo docker build -t cloud-galaxy-job:${tag} .
-echo "run docker container cloud-galaxy-job"
-sudo docker run --privileged=true -idt -p 8087:8087 -v ${builddir}/cloud-galaxy-job/logs:/app/logs --name cloud-galaxy-job cloud-galaxy-job:${tag}
+cloud-galaxy-job 构建异常，请查阅地铁线与构建服务器上详细日志进行修复后重试
 
-# deploy cloud-galaxy-gateway
-clean_docker_containers__images cloud-galaxy-gateway
-
-cd ${builddir}/cloud-galaxy-gateway
-echo "build docker image cloud-galaxy-gateway"
-sudo docker build -t cloud-galaxy-gateway:${tag} .
-echo "run docker container cloud-galaxy-gateway"
-sudo docker run --privileged=true -idt -p 8085:8085 -v ${builddir}/cloud-galaxy-gateway/logs:/app/logs --name cloud-galaxy-gateway cloud-galaxy-gateway:${tag}
+cloud-galaxy-pos 构建成功，请使用最新版本升级线上环境
 ```
 
 ## pyrubik
