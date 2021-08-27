@@ -24,6 +24,7 @@
   - [12. 正在还原](#12-正在还原)
   - [13. 清理备份文件](#13-清理备份文件)
   - [14. sa 登录失败](#14-sa-登录失败)
+  - [15. 事务隔离级别](#15-事务隔离级别)
 
 <!-- /code_chunk_output -->
 
@@ -248,3 +249,13 @@ EXECUTE master.dbo.xp_delete_file 0 ,N'E:\DB\bak\',N'bak',@OLDDATE,0;
 2. 启用 Windows 和 账号登录混合模式
 3. SQL Server 配置管理工具中的 所有 Named Pipes 的 TCP/IP 协议启用起来
 4. 关闭 sa 账号的"强制密码策略"选项
+
+## 15. 事务隔离级别
+
+```sql
+-- read uncommitted
+-- read committed
+-- repeatable read
+-- serialize
+set transaction isolation level read committed
+```
