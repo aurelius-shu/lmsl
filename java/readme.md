@@ -249,3 +249,8 @@ cp settings.xml ~/.m2/
 5. [ReadWriteLock] 只允许一个线程写入，允许多个线程在没有写入时同时读取，适合读多写少的场景
 
 6. [StampedLock] 把读锁细分为乐观读和悲观读，能进一步提升并发效率；StampedLock 是不可重入锁
+
+7. 包查找顺序:
+   - 当前 package
+   - import package
+   - java.lang 包
