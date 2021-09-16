@@ -47,45 +47,57 @@
 - [计算机操作系统](./os/readme.md)
 - [Linux](./os/linux/centos/readme.md)
 - [计算机网络](.)
-- http
-- socket
+- HTTP
+- Socket
+
+## Java
+
+- Java 基础
+- Java 容器
+- Java 并发
+- Java 虚拟机
+- Java I/O
+
+## 数据库
+
+- 数据库系统原理
+- SQL 语法
+- SQL 练习
+- MySQL
+- Redis
+
+## 系统设计
+
+- 系统设计基础
+- [分布式](./java/distributed/readme.md)
+- 集群
 - 攻击技术
-- docker
-- git
+- 缓存
+- 消息队列
+
+## 面向对象
+
+- 面向对象思想
+- 设计模式
+
+## 工具
+
+- Git
+- Docker
+- 构建工具
 - 正则表达式
 
 ## Algorithm
 
 - 算法
 - Leetcode
-- 剑指 Offer
+- 剑指
 - 算法图解
 
-## Language
-
-- Python
-- Django
-
-## Database
-
-- 数据库系统原理
-- MySQL
-- Redis
-- SQL
-- Leetcode-Database
-
-## Design
+## 编码实践
 
 - 代码可读性
-- 面向对象思想
-- 设计模式
-- 系统设计基础
-- 构建工具
-- 重构
-- 缓存
-- 消息队列
-- 分布式
-- 集群
+- 代码风格规范
 
 ## Hadoop
 
@@ -97,6 +109,8 @@
 
 # todo
 
+- Python
+- Django
 - [kafka]()
 - java
 - spring
@@ -104,47 +118,19 @@
 - spark
 - gRPC
 - shell
+- RabbitMQ
+- Zabbix
 
 # skill
 
-## 语言基础
+## 语言栈
 
-- Java 教程
-- Python 教程
+- Java
+- Python
 - shell
-- JavaScript 教程
+- JavaScript
 - Scala
 - C#
-
-## 操作系统
-
-- linux
-
-## 网络
-
-- HTTP
-
-## Web
-
-- Vue
-- SpringBoot
-- Django
-- dot Net Core MVC
-
-## 数据库
-
-- SQL Server
-- MySQL
-
-## 中间件
-
-- Redis
-- Zookeeper
-- RabbitMQ
-
-## 监控
-
-- Zabbix
 
 ## 大数据
 
@@ -157,6 +143,7 @@
 - ElasticSearch
 - Logstash
 - Kibana
+- Powerdesigner
 
 ## 数据分析
 
@@ -171,20 +158,3 @@
 
 - Docker
 - K8S
-
-## 设计
-
-- Powerdesigner
-- UML
-
-## 算法
-
-- 剑指
-- 牛客
-- leetcode
-
-## 3. other
-
-### 1. C++
-
-《C 语言经典编程 282 例》
