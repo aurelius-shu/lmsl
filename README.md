@@ -1,4 +1,4 @@
-# notebook
+# NoteBook
 
 人生的理想状态应该是先抑后扬
 
@@ -40,7 +40,7 @@
 忍耐克制 - 自律
 读书学习 - 寂寞
 
-# index
+# Index
 
 ## Computer Basic
 
@@ -107,30 +107,33 @@
 - Hadoop IO
 - MapReduce 应用开发
 
-# todo
+# Todo
 
+- [Nacos](https://nacos.io/zh-cn/docs/architecture.html)
+- Sentinel
+- Seata
 - Python
 - Django
-- [kafka]()
-- java
-- spring
-- scala
-- spark
+- [Kafka]()
+- Java
+- Spring
+- Scala
+- Spark
 - gRPC
 - shell
 - RabbitMQ
 - Zabbix
 
-# skill
+# Skill
 
 ## 语言栈
 
+- C#
 - Java
 - Python
 - shell
 - JavaScript
 - Scala
-- C#
 
 ## 大数据
 
