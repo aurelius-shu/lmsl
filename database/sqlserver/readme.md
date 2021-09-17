@@ -253,9 +253,30 @@ EXECUTE master.dbo.xp_delete_file 0 ,N'E:\DB\bak\',N'bak',@OLDDATE,0;
 ## 15. 事务隔离级别
 
 ```sql
+-- 查看 isolation
+dbcc useroptions
+
 -- read uncommitted
 -- read committed
 -- repeatable read
 -- serialize
+
+-- 设置 isolation
 set transaction isolation level read committed
+```
+
+## 16. 查看 session id 对应的 SQL
+
+```sql
+SELECT
+    c.session_id, c.net_transport, c.encrypt_option,
+    c.auth_scheme, s.host_name, s.program_name,
+    s.client_interface_name, s.login_name, s.nt_domain,
+    s.nt_user_name, s.original_login_name, c.connect_time,
+    s.login_time,q.text
+FROM sys.dm_exec_connections AS c
+JOIN sys.dm_exec_sessions AS s
+    ON c.session_id = s.session_id
+cross apply fn_get_sql(most_recent_sql_handle) q
+where c.session_id='70'
 ```
