@@ -44,8 +44,8 @@
 
 ## Computer Basic
 
-- [计算机操作系统](./os/readme.md)
-- [Linux](./os/linux/centos/readme.md)
+- [计算机操作系统](./computer/os/readme.md)
+- [Linux](./computer/os/linux/centos/readme.md)
 - [计算机网络](.)
 - HTTP
 - Socket
@@ -80,12 +80,14 @@
 - 面向对象思想
 - 设计模式
 
-## 工具
+## 实践
 
 - Git
 - Docker
 - 构建工具
 - 正则表达式
+- 代码可读性
+- 代码风格规范
 
 ## Algorithm
 
@@ -93,11 +95,6 @@
 - Leetcode
 - 剑指
 - 算法图解
-
-## 编码实践
-
-- 代码可读性
-- 代码风格规范
 
 ## Hadoop
 
