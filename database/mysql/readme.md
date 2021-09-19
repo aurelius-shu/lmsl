@@ -16,6 +16,9 @@
 - [修改时区](#修改时区)
 - [mysql client](#mysql-client)
 - [explain](#explain)
+- [函数](#函数)
+- [存储过程](#存储过程)
+- [游标](#游标)
 
 <!-- /code_chunk_output -->
 
@@ -320,3 +323,11 @@ rpm -ivh mysql/MySQL-5.7/mysql-community-client-5.7.23-1.el7.x86_64.rpm --force 
   - ref
   - rows
   - Extra
+
+# 函数
+
+1. soundex()
+
+# 存储过程
+
+# 游标
