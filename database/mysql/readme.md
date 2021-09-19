@@ -15,6 +15,7 @@
 - [docker](#docker)
 - [修改时区](#修改时区)
 - [mysql client](#mysql-client)
+- [explain](#explain)
 
 <!-- /code_chunk_output -->
 
@@ -300,3 +301,22 @@ flush privileges;
 wget http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-community-client-5.7.23-1.el7.x86_64.rpm
 rpm -ivh mysql/MySQL-5.7/mysql-community-client-5.7.23-1.el7.x86_64.rpm --force --nodeps
 ```
+
+# explain
+
+- 索引
+
+  - 帮做 MySQL 高效获取数据的数据结构，排好序的快速查找（B 树）
+
+- explain
+
+  - id 数字大的优先级高
+  - select_type
+  - table
+  - type
+  - possible_keys
+  - key
+  - key_len
+  - ref
+  - rows
+  - Extra

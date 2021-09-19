@@ -128,3 +128,4 @@ python/debug
 .DS_Store
 java/oraclejdk/
 ~$*.xlsx
+.idea/
