@@ -3,18 +3,19 @@
 <!-- code_chunk_output -->
 
 - [MySQL 安装](#mysql-安装)
-  - [MySQL On Linux](#mysql-on-linux)
-  - [MySQL On Windows](#mysql-on-windows)
-  - [MySQL On Windows +](#mysql-on-windows-1)
+  - [MySQL on Linux](#mysql-on-linux)
+  - [MySQL on Windows](#mysql-on-windows)
+  - [MySQL on Windows +](#mysql-on-windows-1)
+  - [MySQL on Docker](#mysql-on-docker)
+  - [MySQL Client](#mysql-client)
 - [MySQL 管理](#mysql-管理)
+  - [命令行远程登陆](#命令行远程登陆)
   - [用户](#用户)
   - [建库](#建库)
   - [建表](#建表)
-- [登陆](#登陆)
-  - [命令行远程登陆](#命令行远程登陆)
-- [docker](#docker)
-- [修改时区](#修改时区)
-- [mysql client](#mysql-client)
+  - [修改时区](#修改时区)
+- [索引](#索引)
+  - [B+ Tree](#b-tree)
 - [explain](#explain)
 - [函数](#函数)
 - [存储过程](#存储过程)
@@ -26,7 +27,7 @@
 
 [官方文档](https://dev.mysql.com/doc/refman/5.7/en/linux-installation-yum-repo.html)
 
-## MySQL On Linux
+## MySQL on Linux
 
 1. 下载 yum repository
 
@@ -96,7 +97,7 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OP
 FLUSH PRIVILEGES;
 ```
 
-## MySQL On Windows
+## MySQL on Windows
 
 1. 解压到安装路径
 
@@ -177,7 +178,7 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OP
 FLUSH PRIVILEGES;
 ```
 
-## MySQL On Windows +
+## MySQL on Windows +
 
 1. 解压到安装路径
 
@@ -235,7 +236,27 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OP
 FLUSH PRIVILEGES;
 ```
 
+## MySQL on Docker
+
+```shell
+# 启动
+sudo docker run --name mysql -e MYSQL_ROOT_PASSWORD=999999 -p 3306:3306 -d mysql
+```
+
+## MySQL Client
+
+```shell
+wget http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-community-client-5.7.23-1.el7.x86_64.rpm
+rpm -ivh mysql/MySQL-5.7/mysql-community-client-5.7.23-1.el7.x86_64.rpm --force --nodeps
+```
+
 # MySQL 管理
+
+## 命令行远程登陆
+
+```powershell
+mysql -h port -u user -p
+```
 
 ## 用户
 
@@ -269,22 +290,7 @@ collate utf8mb4_romanian_ci;
 create table bas_users(id int, name varchar(30), email varchar(30));
 ```
 
-# 登陆
-
-## 命令行远程登陆
-
-```powershell
-mysql -h port -u user -p
-```
-
-# docker
-
-```shell
-# 启动
-sudo docker run --name mysql -e MYSQL_ROOT_PASSWORD=999999 -p 3306:3306 -d mysql
-```
-
-# 修改时区
+## 修改时区
 
 ```sql
 -- 查看当前时间
@@ -298,31 +304,27 @@ set time_zone = '+8:00';
 flush privileges;
 ```
 
-# mysql client
+# 索引
 
-```shell
-wget http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-community-client-5.7.23-1.el7.x86_64.rpm
-rpm -ivh mysql/MySQL-5.7/mysql-community-client-5.7.23-1.el7.x86_64.rpm --force --nodeps
-```
+MySQL 高效获取数据的数据结构，排好序的快速查找（B+ 树）
+
+## B+ Tree
+
+`B Tree` Balance Tree，平衡树，查找树，且所有叶子节点位于同一层
+`B+ Tree` 基于 B Tree 和叶子节点顺序访问指针实现
 
 # explain
 
-- 索引
-
-  - 帮做 MySQL 高效获取数据的数据结构，排好序的快速查找（B 树）
-
-- explain
-
-  - id 数字大的优先级高
-  - select_type
-  - table
-  - type
-  - possible_keys
-  - key
-  - key_len
-  - ref
-  - rows
-  - Extra
+- id 数字大的优先级高
+- select_type
+- table
+- type
+- possible_keys
+- key
+- key_len
+- ref
+- rows
+- Extra
 
 # 函数
 
