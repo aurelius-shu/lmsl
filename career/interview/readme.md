@@ -133,3 +133,36 @@
 ## Lazada - 20210926
 
 -Dnacos.standalone=true -Dnacos.home=D:\WorkSpace\projects\nacos\distribution
+
+```java
+public  class Tree{
+
+    private Integer value;
+    public Tree left;
+    public Tree right;
+
+    public static List<Integer> deepTrace(Tree node, List<Integer> result){
+        // List<Integer> result = new List<>();
+        if(root == null){
+            return result;
+        }
+        result.add(root.value);
+        this.deepTrace(node.left, result);
+        this.deepTrace(node.right, result);
+        return result;
+    }
+
+    public Tree(int val){
+        this.value= val;
+    }
+
+    public void main(String[] args){
+        Tree root = new Tree(1);
+        root.left = new Tree(2);
+        root.right = new Tree(3);
+        root.left.left = new Tree(4);
+        List<Integer> result = new
+        deepTrace(root, )
+    }
+}
+```
