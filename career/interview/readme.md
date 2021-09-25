@@ -5,11 +5,15 @@
 <!-- code_chunk_output -->
 
 - [interview](#interview)
+  - [自我介绍](#自我介绍)
   - [向面试官的问题](#向面试官的问题)
   - [向 HR 的问题](#向-hr-的问题)
+  - [Tenant - 20210313](#tenant-20210313)
   - [Shopee - 20210911](#shopee-20210911)
   - [Lazada - 20210913](#lazada-20210913)
   - [lazada - 20210915](#lazada-20210915)
+  - [Shopee - 20210923](#shopee-20210923)
+  - [腾讯 - 20210929](#腾讯-20210929)
 
 <!-- /code_chunk_output -->
 
@@ -103,7 +107,7 @@
    - 推动数据集成中间件服务迭代
    - 推动特性分析运营
 
-## lazada - 20210915
+## Lazada - 20210915
 
 1. 带领团队发展走向
    - 客户成功运营，留住并吸纳客户
@@ -118,8 +122,14 @@
 4. Redis ZSET 的存储结构
 5. 哪些排序算法、堆排序？
 
-## 腾讯 - 20210929
+## Shopee - 20210924
+
+## 腾讯 - 20210924
 
 **预备问题**
 
 1. Hive 数据倾斜
+
+## Lazada - 20210926
+
+-Dnacos.standalone=true -Dnacos.home=D:\WorkSpace\projects\nacos\distribution
