@@ -135,3 +135,19 @@ server {
 ```shell
 sudo nginx -s reload
 ```
+
+```conf
+server {
+        listen 80;
+        server_name localhost;
+        charset utf-8;
+
+        # location /pos-cloud/ {
+        #        proxy_pass http://localhost:8085/pos-cloud/;
+        # }
+
+        location /pos/ {
+                alias /app/cloud-galaxy-web/;
+        }
+}
+```
