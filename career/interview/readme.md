@@ -35,12 +35,13 @@
 2. 团队大小，办公环境，出差或外派
 3. 开发周期是什么样子的？瀑布/冲刺/敏捷
 4. 会经常出现最后阶段冲刺还是合理安排
-5. 团队如何决策
-6. 每周要参加多少会议
-7. 工作是否便于集中注意力
-8. 汇报对象是谁
-9. 您喜欢什么，您的工作是做什么
-10. 工作生活平衡问题
+5. 汇报对象是谁
+6. 团队人数、（数据）平台人数，与平台之间的交互方式
+7. 团队如何决策
+8. 每周要参加多少会议
+9. 工作是否便于集中注意力
+10. 您喜欢什么，您的工作是做什么
+11. 工作生活平衡问题
 
 ## 向 HR 的问题
 
@@ -213,12 +214,14 @@ public  class Tree{
    - 业务功能的实用性 - 买点，对研发过程好坏
    - 易用性 - 方便的控制集群的数万节点
    - 系统系统好坏
+
 10. 怎么打 KPI
 
     - 重大任务计划
     - 创新类
     - 支持类
     - 文档输出
+
 11. 数据平台搭建，分层
 
     - ods(kafka, oss, 日志模型元数据管理)
@@ -258,3 +261,34 @@ public  class Tree{
    - 配置中心
    - 对内对外
 8. 职位变更职级，职级层级
+
+## AfterShip - 20211012
+
+公司地址: 前海嘉里中心
+
+```python
+class TreeNode(object):
+    def __init__(val):
+        self.val = val
+        self.left = None
+        self.right = None
+
+
+def test(root):
+    if not root:
+        return []
+
+    res = []
+    queue = [root]
+    while queue:
+        node = queue.pop()
+        res.append(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+
+    return res
+```
+
+## AfterShip - 20211014
