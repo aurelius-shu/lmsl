@@ -239,6 +239,11 @@ else
 fi
 ```
 
+```shell
+sh deploy-datahub.sh datahub-core datahub-server-core 5000 true
+sh deploy-datahub.sh datahub-core datahub-ci-core 5001
+```
+
 ## cloud-galaxy
 
 ### Dockerfile
@@ -371,6 +376,10 @@ else
     echo "------run docker container ${app}------"
     docker run --privileged=true -idt -p $port:$port -v /kingdee/logs/${app}:/app/logs --name ${app} ${repository}/${app}:${tag}
 fi
+```
+
+```sh
+sh deploy-cloud-galaxy.sh pos 8081
 ```
 
 ### message
