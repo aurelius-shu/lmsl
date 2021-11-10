@@ -241,7 +241,7 @@ fi
 
 ```shell
 sh deploy-datahub.sh datahub-core datahub-server-core 5000 true
-sh deploy-datahub.sh datahub-core datahub-ci-core 5001
+sh deploy-datahub.sh datahub-core datahub-ci-core 5001 false
 ```
 
 ## cloud-galaxy
