@@ -23,6 +23,8 @@
 
 后就职于金蝶总部星空产品事业部，从事相关技术研发工作，我从事的工作大致可以分为三块：
 
+星空是一个高度应用动态领域模型、实现企业全场景功能的应用系统、和低代码平台、金蝶当前主打的 Saas 级应用，现有公有云客户数万家，部署应用节点数千；星空研发人员有三四百号人，我们的工作就是提供一个简单易用的服务，让这些同事可以方便的实现埋点，且便于我们统一管理
+
 第一块是在刚进入金蝶的一到两年，主要从事星空基础平台的开发工作，在此期间，参与了星空集成平台、星空健康中心、云巡检、研发过程管理、构建工具等的开发，主要输出在星空业务功能补丁和内部研发过程管理和流程
 
 第二块在入职公司一年多时，专项负责星空产品线大数据专题研发，这个过程，主要负责设计和研发了星空产品端数据的埋点采集框架的两条通道、数据采集代理服务、数据入仓、数仓建设（ods/dim/dwd/adm/tdm）
@@ -309,89 +311,3 @@ PageBuilder
 1. 自行车
 2. 户口转移
 3. 收房
-
-##
-
-领导:
-尹暾
-
-角色:
-星空基础平台数据组研发负责人，负责设计和研发数据全链路，协调组内数据开发（约 3 人）+前端（约 2 人）的研发工作，支撑产品线数据产品研发
-
-其他福利:
-房补: 正在流程中，2022 年 3 月前离职需退回
-专利奖金
-季度即时激励
-微创新
-导师费
-IDCF DevOps 黑客马拉松 (已报名，离职无效)
-餐补 + 班车 + 打车报销
-
-1. 人 ->
-2. 事 -> 内容方向
-3.
-
-## Shopee - 20211103
-
-```
-1、反转二叉树
-
-4                         4
-
-/ \                      /\　
-
-5  6       变成         6   5
-
-/\  /\                 /\  /\
-
-7 8 9 10              10 9 8 7
-
-非递归方式
-
-2、实现一个生产消费模型，要实现多线程生产，多线程消费，且必须线程安全。
-```
-
-```python
-class Node():
-    def __init__(self, val):
-        self.value= val
-        self.left = None
-        self.right = None
-
-def reverse(node):
-    if not node or not node.left:
-        return node
-
-    q, tq = [node],[node]
-    while tq:
-        node = tq.pop(0)
-        if node.left:
-            q.append(node.left)
-            q.append(node.right)
-            tq.append(node.left)
-            tq.append(node.right)
-
-    n = 2
-    temp, q = q[0:1][::-1], q[1:]
-    result = Node(temp[0])
-    rt = [result]
-    while len(q)>=n:
-        temp, q=q[0:n][::-1], q[n:]
-        node =rt.pop(0)
-        node.left = Node(temp[0])
-        node.right = Node(temp[1])
-        temp = temp[2:]
-        n *=2
-    return result
-
-
-if __name__ == '__main__':
-    tree = Node(4)
-    tree.left = Node(5)
-    tree.right = Node(6)
-    result = reverse(tree)
-    print(result.left.value)
-    print(result.right.value)
-```
-
-## Shopee - 20211105
