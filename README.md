@@ -3,7 +3,7 @@ flowchart LR
   subgraph bg [Notebook Overview]
     direction LR
     studying(((Studying))) --> learning(((Learning))) --> writing(((Writing)))
-    click studying href "studying/readme.md" "Studying"
+    click studying "./studying/readme.md" _self
     click learning "learning/readme.md" "Learning"
     click writing "./writing/readme.md" "Writing"
   end
