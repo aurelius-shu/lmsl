@@ -25,7 +25,7 @@ flowchart TB
   <tr>
     <td>1</td>
     <td rowspan="3">Java</td>
-    <td onclick="window.location='./dev-manual/readme.md';">Alibaba Java 开发手册</td>
+    <td onclick="window.location='./dev-manual/readme.md';" style='cursor: pointer;'>Alibaba Java 开发手册</td>
     <td>ㄨ</td>
     <td></td>
   </tr>
