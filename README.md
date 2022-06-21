@@ -2,7 +2,7 @@
 flowchart TB
   subgraph overview [Overview]
     direction LR
-    studying((Studying)) --> learning((Learning)) --> writing(((Writing)))
+    studying((<a href='./studying/readme.md'>Studying</a>)) --> learning((Learning)) --> writing(((Writing)))
   end
   style overview fill:#fff
 ```
