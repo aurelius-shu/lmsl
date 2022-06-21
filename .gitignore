@@ -116,6 +116,7 @@ dmypy.json
 
 
 # 自定义
+career
 extension
 .vscode/settings.json
 python/debug
@@ -142,3 +143,4 @@ projects/latte/edd/load-testing/reports/*
 projects/latte/email-parser/cases/*
 projects/latte/email-parser/reports/*
 temp.md
+inspirational.md
