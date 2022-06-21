@@ -114,33 +114,27 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-
 # 自定义
-career
-extension
-.vscode/settings.json
-python/debug
-.vscode/launch.json
+# path
+extension/
+working/
+career/
+.venv/
+wip/
+.ipynb_checkpoints/
+.idea/
+python/debug/
+java/oraclejdk/
+
+# file
+temp.md
+journal.md
+inspirational.md
+
+.DS_Store
+~$*.xlsx
+*.swp
 
 # scala
 *$.class
 *.class
-
-.DS_Store
-java/oraclejdk/
-~$*.xlsx
-.idea/
-wip
-working
-journal.md
-
-/venv/*
-.ipynb_checkpoints
-.DS_Store
-*.swp
-projects/latte/edd/load-testing/cases/*
-projects/latte/edd/load-testing/reports/*
-projects/latte/email-parser/cases/*
-projects/latte/email-parser/reports/*
-temp.md
-inspirational.md
