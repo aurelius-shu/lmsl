@@ -116,6 +116,7 @@ dmypy.json
 
 
 # 自定义
+career
 extension
 .vscode/settings.json
 python/debug
