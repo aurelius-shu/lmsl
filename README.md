@@ -24,8 +24,8 @@ flowchart TB
   </tr>
   <tr>
     <td>1</td>
-    <td rowspan="3">计算机基础</td>
-    <td><a href="./dev-manual/readme.md">计算机操作系统</a></td>
+    <td rowspan="3">Java</td>
+    <td onclick="window.location='./dev-manual/readme.md';">Alibaba Java 开发手册</td>
     <td>ㄨ</td>
     <td></td>
   </tr>
