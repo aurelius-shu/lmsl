@@ -2,7 +2,7 @@
 flowchart TB
   subgraph overview [Overview]
     direction LR
-    studying((<a href='./studying/readme.md'>Studying</a>)) --> learning((Learning)) --> writing(((Writing)))
+    studying((Studying)) --> learning((Learning)) --> writing(((Writing)))
   end
   style overview fill:#fff
 ```
@@ -17,16 +17,3 @@ flowchart TB
   end
   style abilities fill:#fff
 ```
-
-<table>
-  <tr>
-    <th>索引</th><th>分类</th><th>书目</th><th>状态</th><th>时间</th>
-  </tr>
-  <tr>
-    <td>1</td>
-    <td rowspan="3">Java</td>
-    <td onclick="window.location='./dev-manual/readme.md';" style='cursor: pointer;'>Alibaba Java 开发手册</td>
-    <td>ㄨ</td>
-    <td></td>
-  </tr>
-</table>
