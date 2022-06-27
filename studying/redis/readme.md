@@ -2,13 +2,22 @@
 
 <!-- code_chunk_output -->
 
-- [常见命令](#常见命令)
+- [基础应用 å](#基础应用-å)
+  - [key 操作](#key-操作)
+  - [数据类型](#数据类型)
+  - [其他操作](#其他操作)
+- [原理](#原理)
+- [集群](#集群)
+- [拓展](#拓展)
+- [源码](#源码)
 - [docker](#docker)
-- [示例](#示例)
+- [参考资料](#参考资料)
 
 <!-- /code_chunk_output -->
 
-# 常见命令
+# 基础应用 å
+
+## key 操作
 
 **flushall**
 
@@ -18,13 +27,23 @@
 
 清空当前数据库中的所有 key
 
+## 数据类型
+
+## 其他操作
+
+# 原理
+
+# 集群
+
+# 拓展
+
+# 源码
+
 # docker
 
 ```shell
 docker run --name redis -d -p 6379:6379 redis redis-server --appendonly yes
 ```
-
-# 示例
 
 ```python
 from redis import StrictRedis
@@ -33,3 +52,7 @@ redis = StrictRedis(host='localhost', port=6379, db=0)
 redis.set('name', 'Aurelius')
 print(redis.get('name'))
 ```
+
+# 参考资料
+
+1. 《[Redis 深度历险]()》
