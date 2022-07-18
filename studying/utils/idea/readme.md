@@ -23,7 +23,7 @@
 
 - Material Theme UI
 - Statistic
-- CheckStyle-IDEA
+- Alibaba p3c
 - Key promoter
 
 ## 设置主题
